@@ -52,8 +52,31 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	// part 2 here
-	return 0
+	reports := readLevels(input)
+	var numSafe int
+	for i := range reports {
+		if isSafeLenient(reports[i]) {
+			numSafe++
+		}
+	}
+	return numSafe
+}
+
+func isSafeLenient(levels []int) bool {
+	if isSafe(levels) {
+		return true
+	}
+
+	for i := range levels {
+		var levelsOneRemoved []int
+		levelsOneRemoved = append(levelsOneRemoved, levels[:i]...)
+		levelsOneRemoved = append(levelsOneRemoved, levels[i+1:]...)
+		if isSafe(levelsOneRemoved) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isSafe(levels []int) bool {
