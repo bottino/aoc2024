@@ -43,8 +43,33 @@ func main() {
 }
 
 func part1(input string) int {
-	var left []int
-	var right []int
+	var left, right []int = return_lists(input)
+	slices.Sort(left)
+	slices.Sort(right)
+
+	var total_distance int
+	for i := range left {
+		total_distance += absInt(left[i] - right[i])
+	}
+
+	return total_distance
+}
+
+func part2(input string) int {
+	var left, right []int = return_lists(input)
+	var similarity int
+	for i := range left {
+		for j := range right {
+			if left[i] == right[j] {
+				similarity += left[i]
+			}
+		}
+	}
+
+	return similarity
+}
+
+func return_lists(input string) (left, right []int) {
 	for _, line := range strings.Split(input, "\n") {
 		re := regexp.MustCompile(`(\d+)\s+(\d+)`)
 		matches := re.FindStringSubmatch(line)
@@ -62,20 +87,7 @@ func part1(input string) int {
 		}
 	}
 
-	slices.Sort(left)
-	slices.Sort(right)
-
-	var total_distance int
-	for i := range left {
-		total_distance += absInt(left[i] - right[i])
-	}
-
-	return total_distance
-}
-
-func part2(input string) int {
-	fmt.Println("This will be part 2")
-	return 0
+	return left, right
 }
 
 func absInt(x int) int {
