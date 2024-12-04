@@ -59,6 +59,57 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	// part 2 here
-	return 2
+	dos := find_re_indices(input, `do\(\)`)
+	donts := find_re_indices(input, `don't\(\)`)
+	var sum int
+
+	re_mul := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
+	mul_matches := re_mul.FindAllStringSubmatchIndex(input, -1)
+	for _, m := range mul_matches {
+		idx := m[0]
+		preceding_do := find_closest_preceding_index(idx, dos)
+		preceding_dont := find_closest_preceding_index(idx, donts)
+
+		if preceding_do >= preceding_dont {
+			lhs, err_l := strconv.Atoi(string([]rune(input[m[2]:m[3]])))
+			rhs, err_r := strconv.Atoi(string([]rune(input[m[4]:m[5]])))
+			if err_l != nil || err_r != nil {
+				panic("String conversion failed")
+			}
+
+			sum += lhs * rhs
+		}
+	}
+
+	return sum
+}
+
+func find_closest_preceding_index(x int, indices []int) int {
+	for i := range indices {
+		diff := x - indices[i]
+
+		if diff < 0 && i == 0 {
+			return -1
+		}
+
+		if diff < 0 && i > 0 {
+			return indices[i-1]
+		}
+
+		if diff > 0 && i == len(indices)-1 {
+			return indices[i]
+		}
+	}
+
+	return -1
+}
+
+func find_re_indices(input string, regex string) (indices []int) {
+	re := regexp.MustCompile(regex)
+	matches := re.FindAllStringIndex(input, -1)
+	for _, match := range matches {
+		indices = append(indices, match[0])
+	}
+
+	return
 }
