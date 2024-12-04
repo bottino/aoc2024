@@ -13,6 +13,8 @@ var example string
 //go:embed input.txt
 var input string
 
+const L1 = 4
+
 func init() {
 	example = strings.TrimRight(example, "\n")
 	input = strings.TrimRight(input, "\n")
@@ -40,23 +42,19 @@ func main() {
 }
 
 func part1(input string) (words int) {
-	var table [][]rune = read_input(input)
+	var table [][]rune = readInput(input)
 
 	var N int = len(table)
 	var M int = len(table[0])
 
 	// find line matches
 	for _, line := range table {
-		indices := find_matches(string(line))
+		indices := findMatches(string(line))
 		words += len(indices)
 	}
 
 	// find column matches
-	columns := make([][]rune, M)
-	for i := range columns {
-		columns[i] = make([]rune, N)
-	}
-
+	columns := make2dMat(M, N)
 	for i := 0; i < M; i++ {
 		for j := 0; j < N; j++ {
 			columns[i][j] = table[j][i]
@@ -64,48 +62,16 @@ func part1(input string) (words int) {
 	}
 
 	for _, col := range columns {
-		indices := find_matches(string(col))
+		indices := findMatches(string(col))
 		words += len(indices)
 	}
 
 	// find diag matches
-	for i := 0; i <= N-4; i++ {
-		for j := 0; j <= M-4; j++ {
-			square := get_square(table, i, j)
-			words += get_square_diags(square)
+	for i := 0; i <= N-L1; i++ {
+		for j := 0; j <= M-L1; j++ {
+			square := getSquare(table, i, j, L1)
+			words += getDiagWords(square)
 		}
-	}
-
-	return
-}
-
-func get_square(table [][]rune, x int, y int) (square [4][4]rune) {
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			square[i][j] = table[x+i][y+j]
-		}
-	}
-
-	return
-}
-
-func get_square_diags(square [4][4]rune) (words int) {
-	var lr_diag string
-	for i := 0; i < 4; i++ {
-		lr_diag += string(square[i][i])
-	}
-
-	var rl_diag string
-	for i := 0; i < 4; i++ {
-		rl_diag += string(square[i][4-1-i])
-	}
-
-	if is_pattern(lr_diag) {
-		words++
-	}
-
-	if is_pattern(rl_diag) {
-		words++
 	}
 
 	return
@@ -116,9 +82,55 @@ func part2(input string) int {
 	return 2
 }
 
-func find_matches(str string) (indices []int) {
-	for i := 0; i <= len(str)-4; i++ { // Assuming ASCII chars
-		if is_pattern(str[i : i+4]) {
+func make2dMat(N int, M int) [][]rune {
+	mat := make([][]rune, N)
+	for i := range mat {
+		mat[i] = make([]rune, M)
+	}
+
+	return mat
+}
+
+func getSquare(table [][]rune, x int, y int, L int) (square [][]rune) {
+	square = make2dMat(L, L)
+	for i := 0; i < L; i++ {
+		for j := 0; j < L; j++ {
+			square[i][j] = table[x+i][y+j]
+		}
+	}
+
+	return
+}
+
+func getSquareDiags(square [][]rune) (lrDiag string, rlDiag string) {
+	for i := 0; i < L1; i++ {
+		lrDiag += string(square[i][i])
+	}
+
+	for i := 0; i < L1; i++ {
+		rlDiag += string(square[i][L1-1-i])
+	}
+
+	return lrDiag, rlDiag
+}
+
+func getDiagWords(square [][]rune) (words int) {
+	lrDiag, rlDiag := getSquareDiags(square)
+
+	if isXmasPattern(lrDiag) {
+		words++
+	}
+
+	if isXmasPattern(rlDiag) {
+		words++
+	}
+
+	return
+}
+
+func findMatches(str string) (indices []int) {
+	for i := 0; i <= len(str)-L1; i++ { // Assuming ASCII chars
+		if isXmasPattern(str[i : i+L1]) {
 			indices = append(indices, i)
 		}
 	}
@@ -126,11 +138,11 @@ func find_matches(str string) (indices []int) {
 	return indices
 }
 
-func is_pattern(chunk string) bool {
+func isXmasPattern(chunk string) bool {
 	return chunk == "XMAS" || chunk == "SAMX"
 }
 
-func read_input(input string) (table [][]rune) {
+func readInput(input string) (table [][]rune) {
 	for _, line := range strings.Split(input, "\n") {
 		var lines []rune
 		for i := range line {
