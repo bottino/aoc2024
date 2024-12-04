@@ -68,6 +68,46 @@ func part1(input string) (words int) {
 		words += len(indices)
 	}
 
+	// find diag matches
+	for i := 0; i <= N-4; i++ {
+		for j := 0; j <= M-4; j++ {
+			square := get_square(table, i, j)
+			words += get_square_diags(square)
+		}
+	}
+
+	return
+}
+
+func get_square(table [][]rune, x int, y int) (square [4][4]rune) {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			square[i][j] = table[x+i][y+j]
+		}
+	}
+
+	return
+}
+
+func get_square_diags(square [4][4]rune) (words int) {
+	var lr_diag string
+	for i := 0; i < 4; i++ {
+		lr_diag += string(square[i][i])
+	}
+
+	var rl_diag string
+	for i := 0; i < 4; i++ {
+		rl_diag += string(square[i][4-1-i])
+	}
+
+	if is_pattern(lr_diag) {
+		words++
+	}
+
+	if is_pattern(rl_diag) {
+		words++
+	}
+
 	return
 }
 
@@ -78,12 +118,16 @@ func part2(input string) int {
 
 func find_matches(str string) (indices []int) {
 	for i := 0; i <= len(str)-4; i++ { // Assuming ASCII chars
-		if str[i:i+4] == "XMAS" || str[i:i+4] == "SAMX" {
+		if is_pattern(str[i : i+4]) {
 			indices = append(indices, i)
 		}
 	}
 
 	return indices
+}
+
+func is_pattern(chunk string) bool {
+	return chunk == "XMAS" || chunk == "SAMX"
 }
 
 func read_input(input string) (table [][]rune) {
