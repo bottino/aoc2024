@@ -40,52 +40,63 @@ func main() {
 }
 
 func part1(input string) (xmas int) {
-	var table [][]rune = readInput(input)
+	mat := readInput(input)
 
-	var N int = len(table)
-	var M int = len(table[0])
-
-	// find line matches
-	for _, line := range table {
-		indices := findMatches(string(line))
-		xmas += len(indices)
+	filters := []Mat{
+		{{'X', 'M', 'A', 'S'}},
+		{
+			{'X', '.', '.', '.'},
+			{'.', 'M', '.', '.'},
+			{'.', '.', 'A', '.'},
+			{'.', '.', '.', 'S'},
+		},
 	}
 
-	// find column matches
-	columns := make2dMat(M, N)
-	for i := 0; i < M; i++ {
-		for j := 0; j < N; j++ {
-			columns[i][j] = table[j][i]
-		}
-	}
+	allFilters := augmentFilters(filters)
 
-	for _, col := range columns {
-		indices := findMatches(string(col))
-		xmas += len(indices)
-	}
-
-	// find diag matches
-	for i := 0; i <= N-4; i++ {
-		for j := 0; j <= M-4; j++ {
-			square := getSquare(table, i, j, 4)
-			xmas += getDiagWords(square)
-		}
+	for _, filter := range allFilters {
+		xmas += countFilterMatches(mat, filter)
 	}
 
 	return
 }
 
 func part2(input string) (xmas int) {
-	var table [][]rune = readInput(input)
+	mat := readInput(input)
 
-	var N int = len(table)
-	var M int = len(table[0])
+	filters := []Mat{
+		{
+			{'M', '.', 'S'},
+			{'.', 'A', '.'},
+			{'M', '.', 'S'},
+		},
+	}
 
-	for i := 0; i <= N-3; i++ {
-		for j := 0; j <= M-3; j++ {
-			square := getSquare(table, i, j, 3)
-			if isSquareXmas(square) {
-				xmas++
+	allFilters := augmentFilters(filters)
+
+	for _, filter := range allFilters {
+		xmas += countFilterMatches(mat, filter)
+	}
+
+	return
+}
+
+func augmentFilters(filters []Mat) (allFilters []Mat) {
+	for _, f := range filters {
+		allFilters = append(allFilters, f, f.Rotate(90), f.Rotate(180), f.Rotate(-90))
+	}
+
+	return
+}
+
+func countFilterMatches(mat Mat, filter Mat) (matchCount int) {
+	N, M := mat.Dims()
+	n, m := filter.Dims()
+
+	for i := 0; i <= N-n; i++ {
+		for j := 0; j <= M-m; j++ {
+			if isMatch(mat, filter, i, j) {
+				matchCount++
 			}
 		}
 	}
@@ -93,81 +104,71 @@ func part2(input string) (xmas int) {
 	return
 }
 
-func make2dMat(N int, M int) [][]rune {
-	mat := make([][]rune, N)
-	for i := range mat {
-		mat[i] = make([]rune, M)
-	}
-
-	return mat
-}
-
-func getSquare(table [][]rune, x int, y int, L int) (square [][]rune) {
-	square = make2dMat(L, L)
-	for i := 0; i < L; i++ {
-		for j := 0; j < L; j++ {
-			square[i][j] = table[x+i][y+j]
+func isMatch(mat Mat, filter Mat, x int, y int) bool {
+	n, m := filter.Dims()
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			if filter[i][j] != '.' && mat[x+i][y+j] != filter[i][j] {
+				return false
+			}
 		}
 	}
 
-	return
+	return true
 }
 
-func getSquareDiags(square [][]rune) (lrDiag string, rlDiag string) {
-	L := len(square)
-	for i := 0; i < L; i++ {
-		lrDiag += string(square[i][i])
-	}
-
-	for i := 0; i < L; i++ {
-		rlDiag += string(square[i][L-1-i])
-	}
-
-	return lrDiag, rlDiag
-}
-
-func isSquareXmas(square [][]rune) bool {
-	lrDiag, rlDiag := getSquareDiags(square)
-	return (lrDiag == "MAS" || lrDiag == "SAM") && (rlDiag == "MAS" || rlDiag == "SAM")
-}
-
-func getDiagWords(square [][]rune) (words int) {
-	lrDiag, rlDiag := getSquareDiags(square)
-
-	if isXmasPattern(lrDiag) {
-		words++
-	}
-
-	if isXmasPattern(rlDiag) {
-		words++
-	}
-
-	return
-}
-
-func findMatches(str string) (indices []int) {
-	for i := 0; i <= len(str)-4; i++ { // Assuming ASCII chars
-		if isXmasPattern(str[i : i+4]) {
-			indices = append(indices, i)
-		}
-	}
-
-	return indices
-}
-
-func isXmasPattern(chunk string) bool {
-	return chunk == "XMAS" || chunk == "SAMX"
-}
-
-func readInput(input string) (table [][]rune) {
+func readInput(input string) (mat Mat) {
 	for _, line := range strings.Split(input, "\n") {
 		var lines []rune
 		for i := range line {
 			lines = append(lines, rune(line[i]))
 		}
 
-		table = append(table, lines)
+		mat = append(mat, lines)
 	}
 
-	return table
+	return mat
+}
+
+// Matrix operations
+type Mat [][]rune
+
+func (mat *Mat) Rotate(angle int) (rotated Mat) {
+	N, M := (*mat).Dims()
+
+	if angle != 180 {
+		rotated = newMat(M, N)
+	} else {
+		rotated = newMat(N, M)
+	}
+
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			switch angle {
+			case 90:
+				rotated[j][N-1-i] = (*mat)[i][j]
+			case 180:
+				rotated[N-1-i][M-1-j] = (*mat)[i][j]
+			case -90:
+				rotated[M-1-j][i] = (*mat)[i][j]
+			default:
+				fmt.Printf("Unsupported angle %d", angle)
+			}
+		}
+	}
+
+	return
+}
+
+func (mat *Mat) Dims() (n, m int) {
+	return len(*mat), len((*mat)[0])
+}
+
+func newMat(N int, M int) Mat {
+	mat := make(Mat, N)
+	for i := range mat {
+		mat[i] = make([]rune, M)
+	}
+
+	return mat
 }
