@@ -13,8 +13,6 @@ var example string
 //go:embed input.txt
 var input string
 
-const L1 = 4
-
 func init() {
 	example = strings.TrimRight(example, "\n")
 	input = strings.TrimRight(input, "\n")
@@ -41,7 +39,7 @@ func main() {
 	fmt.Println(solution)
 }
 
-func part1(input string) (words int) {
+func part1(input string) (xmas int) {
 	var table [][]rune = readInput(input)
 
 	var N int = len(table)
@@ -50,7 +48,7 @@ func part1(input string) (words int) {
 	// find line matches
 	for _, line := range table {
 		indices := findMatches(string(line))
-		words += len(indices)
+		xmas += len(indices)
 	}
 
 	// find column matches
@@ -63,23 +61,36 @@ func part1(input string) (words int) {
 
 	for _, col := range columns {
 		indices := findMatches(string(col))
-		words += len(indices)
+		xmas += len(indices)
 	}
 
 	// find diag matches
-	for i := 0; i <= N-L1; i++ {
-		for j := 0; j <= M-L1; j++ {
-			square := getSquare(table, i, j, L1)
-			words += getDiagWords(square)
+	for i := 0; i <= N-4; i++ {
+		for j := 0; j <= M-4; j++ {
+			square := getSquare(table, i, j, 4)
+			xmas += getDiagWords(square)
 		}
 	}
 
 	return
 }
 
-func part2(input string) int {
-	// part 2 here
-	return 2
+func part2(input string) (xmas int) {
+	var table [][]rune = readInput(input)
+
+	var N int = len(table)
+	var M int = len(table[0])
+
+	for i := 0; i <= N-3; i++ {
+		for j := 0; j <= M-3; j++ {
+			square := getSquare(table, i, j, 3)
+			if isSquareXmas(square) {
+				xmas++
+			}
+		}
+	}
+
+	return
 }
 
 func make2dMat(N int, M int) [][]rune {
@@ -103,15 +114,21 @@ func getSquare(table [][]rune, x int, y int, L int) (square [][]rune) {
 }
 
 func getSquareDiags(square [][]rune) (lrDiag string, rlDiag string) {
-	for i := 0; i < L1; i++ {
+	L := len(square)
+	for i := 0; i < L; i++ {
 		lrDiag += string(square[i][i])
 	}
 
-	for i := 0; i < L1; i++ {
-		rlDiag += string(square[i][L1-1-i])
+	for i := 0; i < L; i++ {
+		rlDiag += string(square[i][L-1-i])
 	}
 
 	return lrDiag, rlDiag
+}
+
+func isSquareXmas(square [][]rune) bool {
+	lrDiag, rlDiag := getSquareDiags(square)
+	return (lrDiag == "MAS" || lrDiag == "SAM") && (rlDiag == "MAS" || rlDiag == "SAM")
 }
 
 func getDiagWords(square [][]rune) (words int) {
@@ -129,8 +146,8 @@ func getDiagWords(square [][]rune) (words int) {
 }
 
 func findMatches(str string) (indices []int) {
-	for i := 0; i <= len(str)-L1; i++ { // Assuming ASCII chars
-		if isXmasPattern(str[i : i+L1]) {
+	for i := 0; i <= len(str)-4; i++ { // Assuming ASCII chars
+		if isXmasPattern(str[i : i+4]) {
 			indices = append(indices, i)
 		}
 	}
