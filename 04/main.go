@@ -93,8 +93,8 @@ func countFilterMatches(mat Mat, filter Mat) (matchCount int) {
 	N, M := mat.Dims()
 	n, m := filter.Dims()
 
-	for i := 0; i <= N-n; i++ {
-		for j := 0; j <= M-m; j++ {
+	for i := range N - n + 1 {
+		for j := range M - m + 1 {
 			if isMatch(mat, filter, i, j) {
 				matchCount++
 			}
@@ -106,8 +106,8 @@ func countFilterMatches(mat Mat, filter Mat) (matchCount int) {
 
 func isMatch(mat Mat, filter Mat, x int, y int) bool {
 	n, m := filter.Dims()
-	for i := 0; i < n; i++ {
-		for j := 0; j < m; j++ {
+	for i := range n {
+		for j := range m {
 			if filter[i][j] != '.' && mat[x+i][y+j] != filter[i][j] {
 				return false
 			}
@@ -133,8 +133,8 @@ func readInput(input string) (mat Mat) {
 // Matrix operations
 type Mat [][]rune
 
-func (mat *Mat) Rotate(angle int) (rotated Mat) {
-	N, M := (*mat).Dims()
+func (mat Mat) Rotate(angle int) (rotated Mat) {
+	N, M := mat.Dims()
 
 	if angle != 180 {
 		rotated = newMat(M, N)
@@ -142,15 +142,15 @@ func (mat *Mat) Rotate(angle int) (rotated Mat) {
 		rotated = newMat(N, M)
 	}
 
-	for i := 0; i < N; i++ {
-		for j := 0; j < M; j++ {
+	for i := range N {
+		for j := range M {
 			switch angle {
 			case 90:
-				rotated[j][N-1-i] = (*mat)[i][j]
+				rotated[j][N-1-i] = mat[i][j]
 			case 180:
-				rotated[N-1-i][M-1-j] = (*mat)[i][j]
+				rotated[N-1-i][M-1-j] = mat[i][j]
 			case -90:
-				rotated[M-1-j][i] = (*mat)[i][j]
+				rotated[M-1-j][i] = mat[i][j]
 			default:
 				fmt.Printf("Unsupported angle %d", angle)
 			}
@@ -160,8 +160,8 @@ func (mat *Mat) Rotate(angle int) (rotated Mat) {
 	return
 }
 
-func (mat *Mat) Dims() (n, m int) {
-	return len(*mat), len((*mat)[0])
+func (mat Mat) Dims() (n, m int) {
+	return len(mat), len(mat[0])
 }
 
 func newMat(N int, M int) Mat {
