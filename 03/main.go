@@ -45,71 +45,38 @@ func part1(input string) int {
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
 	matches := re.FindAllStringSubmatch(input, -1)
 	var sum int
-	for _, match := range matches {
-		lhs, err_l := strconv.Atoi(match[1])
-		rhs, err_r := strconv.Atoi(match[2])
-		if err_l != nil || err_r != nil {
-			panic("String conversion failed")
-		}
-
-		sum += lhs * rhs
+	for _, m := range matches {
+		sum += toInt(m[1]) * toInt(m[2])
 	}
 
 	return sum
 }
 
-func part2(input string) int {
-	dos := find_re_indices(input, `do\(\)`)
-	donts := find_re_indices(input, `don't\(\)`)
-	var sum int
-
-	re_mul := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
-	mul_matches := re_mul.FindAllStringSubmatchIndex(input, -1)
-	for _, m := range mul_matches {
-		idx := m[0]
-		preceding_do := find_closest_preceding_index(idx, dos)
-		preceding_dont := find_closest_preceding_index(idx, donts)
-
-		if preceding_do >= preceding_dont {
-			lhs, err_l := strconv.Atoi(string([]rune(input[m[2]:m[3]])))
-			rhs, err_r := strconv.Atoi(string([]rune(input[m[4]:m[5]])))
-			if err_l != nil || err_r != nil {
-				panic("String conversion failed")
+func part2(input string) (sum int) {
+	re := regexp.MustCompile(`mul\((\d+),(\d+)\)|do\(\)|don't\(\)`)
+	matches := re.FindAllStringSubmatch(input, -1)
+	enabled := true
+	for _, m := range matches {
+		switch m[0] {
+		case "do()":
+			enabled = true
+		case "don't()":
+			enabled = false
+		default:
+			if enabled {
+				sum += toInt(m[1]) * toInt(m[2])
 			}
-
-			sum += lhs * rhs
 		}
 	}
 
 	return sum
 }
 
-func find_closest_preceding_index(x int, indices []int) int {
-	for i := range indices {
-		diff := x - indices[i]
-
-		if diff < 0 && i == 0 {
-			return -1
-		}
-
-		if diff < 0 && i > 0 {
-			return indices[i-1]
-		}
-
-		if diff > 0 && i == len(indices)-1 {
-			return indices[i]
-		}
+func toInt(x string) int {
+	xInt, err := strconv.Atoi(x)
+	if err != nil {
+		fmt.Printf("String conversion failed for %s\n", x)
 	}
 
-	return -1
-}
-
-func find_re_indices(input string, regex string) (indices []int) {
-	re := regexp.MustCompile(regex)
-	matches := re.FindAllStringIndex(input, -1)
-	for _, match := range matches {
-		indices = append(indices, match[0])
-	}
-
-	return
+	return xInt
 }
