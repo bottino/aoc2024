@@ -43,12 +43,10 @@ func main() {
 
 type RuleMap map[string](map[string]bool)
 
-var rules RuleMap
-
 func part1(input string) (solution int) {
-	updates := readInput(input)
+	rules, updates := readInput(input)
 	for _, update := range updates {
-		if slices.IsSortedFunc(update, comparePages) {
+		if slices.IsSortedFunc(update, comparePages(rules)) {
 			midValue, _ := strconv.Atoi(update[len(update)/2])
 			solution += midValue
 		}
@@ -58,10 +56,10 @@ func part1(input string) (solution int) {
 }
 
 func part2(input string) (solution int) {
-	updates := readInput(input)
+	rules, updates := readInput(input)
 	for _, update := range updates {
-		if slices.IsSortedFunc(update, comparePages) == false {
-			slices.SortFunc(update, comparePages)
+		if slices.IsSortedFunc(update, comparePages(rules)) == false {
+			slices.SortFunc(update, comparePages(rules))
 			midValue, _ := strconv.Atoi(update[len(update)/2])
 			solution += midValue
 		}
@@ -70,7 +68,7 @@ func part2(input string) (solution int) {
 	return
 }
 
-func readInput(input string) (updates [][]string) {
+func readInput(input string) (rules RuleMap, updates [][]string) {
 	isFirstPart := true
 	rules = make(RuleMap)
 	for _, line := range strings.Split(input, "\n") {
@@ -93,17 +91,19 @@ func readInput(input string) (updates [][]string) {
 	return
 }
 
-func comparePages(a string, b string) int {
-	// b must be after a
-	if _, ok := rules[a][b]; ok {
-		return -1
-	}
+func comparePages(rules RuleMap) func(string, string) int {
+	return func(a, b string) int {
+		// b must be after a
+		if _, ok := rules[a][b]; ok {
+			return -1
+		}
 
-	// b must be before a
-	if _, ok := rules[b][a]; ok {
-		return 1
-	}
+		// b must be before a
+		if _, ok := rules[b][a]; ok {
+			return 1
+		}
 
-	// incomparable
-	return 0
+		// incomparable
+		return 0
+	}
 }
