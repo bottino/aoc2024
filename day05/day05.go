@@ -1,49 +1,15 @@
-package main
+package day05
 
 import (
 	_ "embed"
-	"flag"
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
 )
 
-//go:embed example.txt
-var example string
-
-//go:embed input.txt
-var input string
-
-func init() {
-	example = strings.TrimRight(example, "\n")
-	input = strings.TrimRight(input, "\n")
-}
-
-func main() {
-	var part int
-	flag.IntVar(&part, "p", 1, "The part of the puzzle")
-	var useExample bool
-	flag.BoolVar(&useExample, "e", false, "Use the example as input")
-	flag.Parse()
-
-	if useExample {
-		input = example
-	}
-
-	var solution int
-	if part == 1 {
-		solution = part1(input)
-	} else {
-		solution = part2(input)
-	}
-
-	fmt.Println(solution)
-}
-
 type RuleMap map[string](map[string]bool)
 
-func part1(input string) (solution int) {
+func Part1(input string) (solution int) {
 	rules, updates := readInput(input)
 	for _, update := range updates {
 		if slices.IsSortedFunc(update, comparePages(rules)) {
@@ -55,7 +21,7 @@ func part1(input string) (solution int) {
 	return
 }
 
-func part2(input string) (solution int) {
+func Part2(input string) (solution int) {
 	rules, updates := readInput(input)
 	for _, update := range updates {
 		if slices.IsSortedFunc(update, comparePages(rules)) == false {

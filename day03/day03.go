@@ -1,47 +1,13 @@
-package main
+package day03
 
 import (
 	_ "embed"
-	"flag"
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
-//go:embed example.txt
-var example string
-
-//go:embed input.txt
-var input string
-
-func init() {
-	example = strings.TrimRight(example, "\n")
-	input = strings.TrimRight(input, "\n")
-}
-
-func main() {
-	var part int
-	flag.IntVar(&part, "p", 1, "The part of the puzzle")
-	var useExample bool
-	flag.BoolVar(&useExample, "e", false, "Use the example as input")
-	flag.Parse()
-
-	if useExample {
-		input = example
-	}
-
-	var solution int
-	if part == 1 {
-		solution = part1(input)
-	} else {
-		solution = part2(input)
-	}
-
-	fmt.Println(solution)
-}
-
-func part1(input string) int {
+func Part1(input string) int {
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
 	matches := re.FindAllStringSubmatch(input, -1)
 	var sum int
@@ -52,7 +18,7 @@ func part1(input string) int {
 	return sum
 }
 
-func part2(input string) (sum int) {
+func Part2(input string) (sum int) {
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)|do\(\)|don't\(\)`)
 	matches := re.FindAllStringSubmatch(input, -1)
 	enabled := true
