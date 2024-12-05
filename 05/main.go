@@ -45,10 +45,34 @@ type RuleMap map[string](map[string]bool)
 
 var rules RuleMap
 
-func part1(input string) int {
+func part1(input string) (solution int) {
+	updates := readInput(input)
+	for _, update := range updates {
+		if slices.IsSortedFunc(update, comparePages) {
+			midValue, _ := strconv.Atoi(update[len(update)/2])
+			solution += midValue
+		}
+	}
+
+	return
+}
+
+func part2(input string) (solution int) {
+	updates := readInput(input)
+	for _, update := range updates {
+		if slices.IsSortedFunc(update, comparePages) == false {
+			slices.SortFunc(update, comparePages)
+			midValue, _ := strconv.Atoi(update[len(update)/2])
+			solution += midValue
+		}
+	}
+
+	return
+}
+
+func readInput(input string) (updates [][]string) {
 	isFirstPart := true
 	rules = make(RuleMap)
-	var updates [][]string
 	for _, line := range strings.Split(input, "\n") {
 		if line == "" {
 			isFirstPart = false
@@ -66,20 +90,7 @@ func part1(input string) int {
 		}
 	}
 
-	var sumMidValues int
-	for _, update := range updates {
-		if slices.IsSortedFunc(update, comparePages) {
-			midValue, _ := strconv.Atoi(update[len(update)/2])
-			sumMidValues += midValue
-		}
-	}
-
-	return sumMidValues
-}
-
-func part2(input string) int {
-	// part 2 here
-	return 2
+	return
 }
 
 func comparePages(a string, b string) int {
