@@ -1,5 +1,8 @@
 package main
 
+// Generate days.go, creating the list of days
+//go:generate go run ./gen
+
 import (
 	_ "embed"
 	"flag"
