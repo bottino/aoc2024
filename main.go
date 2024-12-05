@@ -29,7 +29,7 @@ func (day aocDay) GetInputPath(useExample bool) string {
 
 func main() {
 	var dayNumber int
-	flag.IntVar(&dayNumber, "d", 0, "The part of the puzzle")
+	flag.IntVar(&dayNumber, "d", 0, "Advent of code day")
 	var part int
 	flag.IntVar(&part, "p", 1, "The part of the puzzle")
 	var useExample bool
@@ -46,6 +46,7 @@ func main() {
 	inputBytes, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Printf("Error reading input file: %v\n", err)
+		return
 	}
 
 	input := strings.TrimRight(string(inputBytes), "\n")

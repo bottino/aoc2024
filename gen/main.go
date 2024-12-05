@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"slices"
 	"strings"
-	"text/template"
+
+	"github.com/bottino/aoc2024/utils"
 )
 
 type DayDir struct {
@@ -32,22 +32,5 @@ func main() {
 		}
 	}
 
-	slices.SortFunc(dayDirs, sortByName)
-	var tmplFile = "templates/days.tmpl"
-	tmpl, err := template.ParseFiles(tmplFile)
-	if err != nil {
-		fmt.Printf("Error reading template: %v", err)
-	}
-
-	fout, err := os.Create("days.go")
-	if err != nil {
-		fmt.Printf("Error creating file: %v", err)
-	}
-	defer fout.Close()
-
-	err = tmpl.Execute(fout, dayDirs)
-	if err != nil {
-		fmt.Printf("Error creating file from template: %v", err)
-	}
+	utils.CreateFromTemplate("days.go", "templates/days.tmpl", dayDirs)
 }
-
