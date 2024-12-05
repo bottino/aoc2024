@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type aocDay struct {
@@ -29,7 +30,8 @@ func (day aocDay) GetInputPath(useExample bool) string {
 
 func main() {
 	var dayNumber int
-	flag.IntVar(&dayNumber, "d", 0, "Advent of code day")
+	now := time.Now()
+	flag.IntVar(&dayNumber, "d", now.Day(), "Advent of code day")
 	var part int
 	flag.IntVar(&part, "p", 1, "The part of the puzzle")
 	var useExample bool
