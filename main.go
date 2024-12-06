@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -36,7 +37,12 @@ func main() {
 	flag.IntVar(&part, "p", 1, "The part of the puzzle")
 	var useExample bool
 	flag.BoolVar(&useExample, "e", false, "Use the example as input")
+	var timeSol bool
+	flag.BoolVar(&timeSol, "t", false, "Time the solution")
 	flag.Parse()
+
+	// Use all CPU cores
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	day, ok := days[dayNumber]
 	if ok == false {
@@ -52,6 +58,8 @@ func main() {
 	}
 
 	input := strings.TrimRight(string(inputBytes), "\n")
+
+	start := time.Now()
 	var solution int
 	if part == 1 {
 		solution = day.Part1(input)
@@ -59,5 +67,11 @@ func main() {
 		solution = day.Part2(input)
 	}
 
+	end := time.Now()
+	elapsedMs := (end.Sub(start)).Milliseconds()
+
 	fmt.Println(solution)
+	if timeSol {
+		fmt.Printf("Elapsed: %d ms\n", elapsedMs)
+	}
 }

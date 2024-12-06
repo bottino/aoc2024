@@ -3,6 +3,7 @@ package day06
 import (
 	"fmt"
 	"strings"
+	"sync"
 )
 
 func Part1(input string) (solution int) {
@@ -33,9 +34,14 @@ func Part1(input string) (solution int) {
 
 func Part2(input string) (solution int) {
 	grid, guard, nx, ny := readInput(input)
+
+	c := make(chan bool, nx*ny)
+	wg := sync.WaitGroup{}
+
 	for i := range nx {
 		for j := range ny {
 			oPos := Coord{i, j}
+			// Don't process if existing obstacle or the starting position of the guard
 			if grid[oPos] != '.' {
 				continue
 			}
@@ -47,22 +53,32 @@ func Part2(input string) (solution int) {
 				ObsHits:  make(map[Hit]bool),
 			}
 
-			if isSystemLoop(sys) {
-				//Found loop with obstacle at oPos
-				solution++
-			}
+			wg.Add(1)
+			go runSystem(sys, c, &wg)
 		}
 	}
+
+	wg.Wait()
+	close(c)
+
+	for isLoop := range c {
+		if isLoop {
+			solution++
+		}
+	}
+
 	return
 }
 
-func isSystemLoop(sys System) bool {
+func runSystem(sys System, c chan bool, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for {
 		pos := Coord{sys.Guard.Pos[0] + sys.Guard.Dir[0], sys.Guard.Pos[1] + sys.Guard.Dir[1]}
 		newSquare, ok := sys.Grid[pos]
 		if ok == false {
 			// Guard exists through the edge
-			return false
+			c <- false
+			return
 		}
 
 		// Check if we hit the extra obstacle
@@ -80,7 +96,8 @@ func isSystemLoop(sys System) bool {
 			hit := Hit{pos[0], pos[1], sys.Guard.Dir[0], sys.Guard.Dir[1]}
 			if _, ok := sys.ObsHits[hit]; ok {
 				// There's a loop
-				return true
+				c <- true
+				return
 			}
 			sys.ObsHits[hit] = true
 			sys.Guard.TurnRight()
