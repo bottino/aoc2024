@@ -1,61 +1,38 @@
 package day06
 
 import (
-	"fmt"
 	"strings"
 	"sync"
 )
 
 func Part1(input string) (solution int) {
-	grid, guard, _, _ := readInput(input)
-	solution++ // the first square is visited
-	for {
-		pos := Coord{guard.Pos[0] + guard.Dir[0], guard.Pos[1] + guard.Dir[1]}
-		newSquare, ok := grid[pos]
-		if ok == false {
-			fmt.Println("Guard exited at", pos)
-			break
-		}
+	grid, guard := readInput(input)
+	sys := System{guard.Clone(), grid, Coord{-1, -1}}
 
-		switch newSquare {
-		case '.':
-			grid[pos] = 'X'
-			guard.Pos = pos
-			solution++
-		case 'X':
-			guard.Pos = pos
-		case '#':
-			guard.TurnRight()
-		}
-	}
+	visited, _ := runSystem(sys)
 
-	return
+	return len(visited) + 1 // the starting square
 }
 
 func Part2(input string) (solution int) {
-	grid, guard, nx, ny := readInput(input)
+	grid, guard := readInput(input)
 
-	c := make(chan bool, nx*ny)
+	sys := System{guard.Clone(), grid, Coord{-1, -1}}
+	visited, _ := runSystem(sys)
+
+	c := make(chan bool, len(visited))
 	wg := sync.WaitGroup{}
 
-	for i := range nx {
-		for j := range ny {
-			oPos := Coord{i, j}
-			// Don't process if existing obstacle or the starting position of the guard
-			if grid[oPos] != '.' {
-				continue
-			}
-
-			sys := System{
-				Guard:    guard.Clone(),
-				Grid:     grid,
-				Obstacle: oPos,
-				ObsHits:  make(map[Hit]bool),
-			}
-
-			wg.Add(1)
-			go runSystem(sys, c, &wg)
+	for k := range visited {
+		// Don't process if existing obstacle or the starting position of the guard
+		if grid[k] != '.' {
+			continue
 		}
+
+		sys := System{guard.Clone(), grid, k}
+
+		wg.Add(1)
+		go findLoopInSystem(sys, c, &wg)
 	}
 
 	wg.Wait()
@@ -70,46 +47,50 @@ func Part2(input string) (solution int) {
 	return
 }
 
-func runSystem(sys System, c chan bool, wg *sync.WaitGroup) {
+func findLoopInSystem(sys System, c chan bool, wg *sync.WaitGroup) {
 	defer wg.Done()
+	_, isLoop := runSystem(sys)
+	c <- isLoop
+}
+
+func runSystem(sys System) (visited map[Coord]bool, isLoop bool) {
+	visited = make(map[Coord]bool)
+	obsHits := make(map[Hit]bool)
 	for {
 		pos := Coord{sys.Guard.Pos[0] + sys.Guard.Dir[0], sys.Guard.Pos[1] + sys.Guard.Dir[1]}
 		newSquare, ok := sys.Grid[pos]
 		if ok == false {
 			// Guard exists through the edge
-			c <- false
-			return
+			return visited, false
 		}
 
-		// Check if we hit the extra obstacle
-		if pos == sys.Obstacle {
+		if pos == sys.ExtraObstacle {
 			newSquare = '#'
 		}
 
 		switch newSquare {
 		case '.':
 			sys.Guard.Pos = pos
+			visited[pos] = true
 		case 'X':
 			sys.Guard.Pos = pos
 		case '#':
 			// If we've hit the same obstacle facing the same direction, we're in a loop
 			hit := Hit{pos[0], pos[1], sys.Guard.Dir[0], sys.Guard.Dir[1]}
-			if _, ok := sys.ObsHits[hit]; ok {
+			if _, ok := obsHits[hit]; ok {
 				// There's a loop
-				c <- true
-				return
+				return visited, true
 			}
-			sys.ObsHits[hit] = true
+			obsHits[hit] = true
 			sys.Guard.TurnRight()
 		}
 	}
 }
 
 type System struct {
-	Guard    Guard
-	Grid     Grid
-	Obstacle Coord
-	ObsHits  map[Hit]bool
+	Guard         Guard
+	Grid          Grid
+	ExtraObstacle Coord
 }
 
 type Hit [4]int
@@ -146,12 +127,10 @@ func (g *Guard) TurnRight() {
 
 type Grid map[Coord]rune
 
-func readInput(input string) (grid Grid, guard Guard, nx int, ny int) {
+func readInput(input string) (grid Grid, guard Guard) {
 	grid = make(Grid)
 	lines := strings.Split(input, "\n")
-	nx = len(lines)
 	for i, line := range lines {
-		ny = len(line)
 		for j, char := range line {
 			square := Coord{i, j}
 			switch char {
