@@ -1,17 +1,38 @@
 package day07
 
 import (
-	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
 
-func Part1(input string) (solution int) {
+var add Operator = func(a int, b int) int {
+	return a + b
+}
+var mul Operator = func(a int, b int) int {
+	return a * b
+}
+var concat Operator = func(a int, b int) int {
+	numDigits := int(math.Log10(float64(b))) + 1
+	return a*int(math.Pow(10, float64(numDigits))) + b
+}
+
+func Part1(input string) int {
+	operators := []Operator{add, mul}
+	return solve(input, operators)
+}
+
+func Part2(input string) int {
+	operators := []Operator{add, mul, concat}
+	return solve(input, operators)
+}
+
+func solve(input string, operators []Operator) (solution int) {
 	eqs := readEqs(input)
 
 outer:
 	for _, eq := range eqs {
-		combinations := genOperators(len(eq.Operands) - 1)
+		combinations := genCombinations(operators, len(eq.Operands)-1)
 		for _, ops := range combinations {
 			res := eq.Operands[0]
 			for i := 0; i < len(eq.Operands)-1; i++ {
@@ -28,29 +49,12 @@ outer:
 	return solution
 }
 
-func Part2(input string) (solution int) {
-	fmt.Println("No solution yet for day 7, part 2")
-	return
-}
-
 type Equation struct {
 	Res      int
 	Operands []int
 }
 
 type Operator func(int, int) int
-
-func genOperators(n int) (combinations [][]Operator) {
-	var add Operator = func(a int, b int) int {
-		return a + b
-	}
-	var mul Operator = func(a int, b int) int {
-		return a * b
-	}
-	operators := []Operator{add, mul}
-
-	return genCombinations(operators, n)
-}
 
 func genCombinations[T any](items []T, n int) (combinations [][]T) {
 	var helper func(curr []T, length int)
