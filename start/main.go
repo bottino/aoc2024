@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
+	"strconv"
 
 	"github.com/bottino/aoc2024/utils"
 )
@@ -15,9 +15,9 @@ type DayDir struct {
 }
 
 func main() {
-	now := time.Now()
+	envDay, _ := strconv.Atoi(os.Getenv("AOC_DAY"))
 	var dayNumber int
-	flag.IntVar(&dayNumber, "d", now.Day(), "Advent of code day")
+	flag.IntVar(&dayNumber, "d", envDay, "Advent of code day")
 	flag.Parse()
 
 	dayName := fmt.Sprintf("day%02d", dayNumber)
