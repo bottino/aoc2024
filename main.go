@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,16 +30,21 @@ func (day aocDay) GetInputPath(useExample bool) string {
 	}
 }
 
-func main() {
-	var dayNumber int
-	now := time.Now()
-	flag.IntVar(&dayNumber, "d", now.Day(), "Advent of code day")
-	var part int
-	flag.IntVar(&part, "p", 1, "The part of the puzzle")
-	var useExample bool
+var dayNumber int
+var part int
+var useExample bool
+var timeSol bool
+
+func init() {
+	envDay, _ := strconv.Atoi(os.Getenv("AOC_DAY"))
+	flag.IntVar(&dayNumber, "d", envDay, "Advent of code day")
+	envPart, _ := strconv.Atoi(os.Getenv("AOC_PART"))
+	flag.IntVar(&part, "p", envPart, "The part of the puzzle")
 	flag.BoolVar(&useExample, "e", false, "Use the example as input")
-	var timeSol bool
 	flag.BoolVar(&timeSol, "t", false, "Time the solution")
+}
+
+func main() {
 	flag.Parse()
 
 	// Use all CPU cores
@@ -56,7 +62,6 @@ func main() {
 		fmt.Printf("Error reading input file: %v\n", err)
 		return
 	}
-
 	input := strings.TrimRight(string(inputBytes), "\n")
 
 	start := time.Now()
