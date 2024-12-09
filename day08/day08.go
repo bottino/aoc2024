@@ -1,7 +1,6 @@
 package day08
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -16,8 +15,6 @@ func Part2(input string) int {
 func Solve(input string, part1 bool) int {
 	freqMap := readMap(input)
 	freqMap.AnodeMap = make(map[Node]bool)
-
-	fmt.Println(freqMap)
 
 	for _, v := range freqMap.NodeMap {
 		pairs := getAllPairs(v)
@@ -34,8 +31,6 @@ func Solve(input string, part1 bool) int {
 			}
 		}
 	}
-
-	fmt.Println(freqMap)
 
 	return len(freqMap.AnodeMap)
 }
