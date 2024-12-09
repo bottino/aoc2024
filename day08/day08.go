@@ -6,6 +6,14 @@ import (
 )
 
 func Part1(input string) int {
+	return Solve(input, true)
+}
+
+func Part2(input string) int {
+	return Solve(input, false)
+}
+
+func Solve(input string, part1 bool) int {
 	freqMap := readMap(input)
 	freqMap.AnodeMap = make(map[Node]bool)
 
@@ -14,9 +22,15 @@ func Part1(input string) int {
 	for _, v := range freqMap.NodeMap {
 		pairs := getAllPairs(v)
 		for _, p := range pairs {
-			antiNode := getAntiNode(p[0], p[1])
-			if freqMap.isInBounds(antiNode) {
-				freqMap.AnodeMap[antiNode] = true
+			var antiNodes []Node
+			if part1 {
+				antiNodes = getAntiNodesP1(p[0], p[1], freqMap)
+			} else {
+				antiNodes = getAntiNodesP2(p[0], p[1], freqMap)
+			}
+
+			for _, n := range antiNodes {
+				freqMap.AnodeMap[n] = true
 			}
 		}
 	}
@@ -26,18 +40,31 @@ func Part1(input string) int {
 	return len(freqMap.AnodeMap)
 }
 
-func getAntiNode(a Node, b Node) Node {
+func getAntiNodesP2(a Node, b Node, fMap FreqMap) (anodes []Node) {
 	var u, v int = b.X - a.X, b.Y - a.Y
-	return Node{b.X + u, b.Y + v}
+	f := 0
+	n := b
+	for fMap.isInBounds(n) {
+		anodes = append(anodes, n)
+		f++
+		n = Node{b.X + u*f, b.Y + v*f}
+	}
+
+	return anodes
+}
+
+func getAntiNodesP1(a Node, b Node, fMap FreqMap) []Node {
+	var u, v int = b.X - a.X, b.Y - a.Y
+	n := Node{b.X + u, b.Y + v}
+	if fMap.isInBounds(n) {
+		return []Node{n}
+	} else {
+		return []Node{}
+	}
 }
 
 func (m *FreqMap) isInBounds(node Node) bool {
 	return node.X >= 0 && node.X < m.N && node.Y >= 0 && node.Y < m.M
-}
-
-func Part2(input string) (solution int) {
-	fmt.Println("No solution yet for day 8, part 2")
-	return
 }
 
 type Node struct {
