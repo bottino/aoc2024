@@ -4,6 +4,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var add Operator = func(a int, b int) int {
@@ -30,23 +31,40 @@ func Part2(input string) int {
 func solve(input string, operators []Operator) (solution int) {
 	eqs := readEqs(input)
 
-outer:
+	c := make(chan int, len(eqs))
+	wg := sync.WaitGroup{}
 	for _, eq := range eqs {
-		combinations := genCombinations(operators, len(eq.Operands)-1)
-		for _, ops := range combinations {
-			res := eq.Operands[0]
-			for i := 0; i < len(eq.Operands)-1; i++ {
-				res = ops[i](res, eq.Operands[i+1])
-			}
+		wg.Add(1)
+		go SolveEq(eq, operators, c, &wg)
+	}
 
-			if res == eq.Res {
-				solution += res
-				continue outer
-			}
-		}
+	wg.Wait()
+	close(c)
+
+	for res := range c {
+		solution += res
 	}
 
 	return solution
+}
+
+func SolveEq(eq Equation, operators []Operator, c chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	combinations := genCombinations(operators, len(eq.Operands)-1)
+	for _, ops := range combinations {
+		res := eq.Operands[0]
+		for i := 0; i < len(eq.Operands)-1; i++ {
+			res = ops[i](res, eq.Operands[i+1])
+			if res > eq.Res {
+				break
+			}
+		}
+
+		if res == eq.Res {
+			c <- res
+			return
+		}
+	}
 }
 
 type Equation struct {
