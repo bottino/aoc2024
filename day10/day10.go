@@ -1,7 +1,6 @@
 package day10
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -19,8 +18,14 @@ func Part1(input string) int {
 }
 
 func Part2(input string) (solution int) {
-	fmt.Println("No solution yet for day 10, part 2")
-	return
+	emap, trailheads := readElevations(input)
+	var numTrails int
+	for _, th := range trailheads {
+		elev := emap[th]
+		numTrails += getNumTrails(th, elev, emap)
+	}
+
+	return numTrails
 }
 
 type Coord struct {
@@ -28,6 +33,19 @@ type Coord struct {
 }
 
 type ElevMap map[Coord]int
+
+func getNumTrails(c Coord, elev int, emap ElevMap) (numTrails int) {
+	if elev == 9 {
+		return 1
+	}
+
+	for _, n := range getNeighboringPaths(c, elev, emap) {
+		nElev := emap[n]
+		numTrails += getNumTrails(n, nElev, emap)
+	}
+
+	return numTrails
+}
 
 func getSummits(c Coord, elev int, emap ElevMap, summits *map[Coord]bool) {
 	if elev == 9 {
