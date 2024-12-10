@@ -4,7 +4,6 @@ import (
 	"math"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 var add Operator = func(a int, b int) int {
@@ -31,40 +30,32 @@ func Part2(input string) int {
 func solve(input string, operators []Operator) (solution int) {
 	eqs := readEqs(input)
 
-	c := make(chan int, len(eqs))
-	wg := sync.WaitGroup{}
 	for _, eq := range eqs {
-		wg.Add(1)
-		go SolveEq(eq, operators, c, &wg)
-	}
-
-	wg.Wait()
-	close(c)
-
-	for res := range c {
-		solution += res
+		solved := recurseSolve(eq.Res, eq.Operands[0], eq.Operands[1:], operators)
+		if solved {
+			solution += eq.Res
+		}
 	}
 
 	return solution
 }
 
-func SolveEq(eq Equation, operators []Operator, c chan int, wg *sync.WaitGroup) {
-	defer wg.Done()
-	combinations := genCombinations(operators, len(eq.Operands)-1)
-	for _, ops := range combinations {
-		res := eq.Operands[0]
-		for i := 0; i < len(eq.Operands)-1; i++ {
-			res = ops[i](res, eq.Operands[i+1])
-			if res > eq.Res {
-				break
-			}
-		}
+func recurseSolve(res int, curr int, operands []int, operators []Operator) bool {
+	if curr > res {
+		return false
+	}
+	if len(operands) == 0 {
+		return res == curr
+	}
 
-		if res == eq.Res {
-			c <- res
-			return
+	for _, op := range operators {
+		solved := recurseSolve(res, op(curr, operands[0]), operands[1:], operators)
+		if solved {
+			return true
 		}
 	}
+
+	return false
 }
 
 type Equation struct {
@@ -73,25 +64,6 @@ type Equation struct {
 }
 
 type Operator func(int, int) int
-
-func genCombinations[T any](items []T, n int) (combinations [][]T) {
-	var helper func(curr []T, length int)
-	helper = func(curr []T, length int) {
-		if length == 0 {
-			c := make([]T, len(curr))
-			copy(c, curr)
-			combinations = append(combinations, c)
-			return
-		}
-
-		for _, item := range items {
-			helper(append(curr, item), length-1)
-		}
-	}
-
-	helper([]T{}, n)
-	return combinations
-}
 
 func readEqs(input string) (equations []Equation) {
 	for _, line := range strings.Split(input, "\n") {
