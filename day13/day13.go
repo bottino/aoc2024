@@ -1,7 +1,6 @@
 package day13
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,7 +11,7 @@ func Part1(input string) int {
 	var coins int
 	for _, eq := range eqs {
 		na, nb := eq.Solve()
-		if na > 100 || nb > 100 {
+		if na < 0 || na > 100 || nb < 0 || nb > 100 {
 			continue
 		}
 
@@ -22,9 +21,21 @@ func Part1(input string) int {
 	return coins
 }
 
-func Part2(input string) (solution int) {
-	fmt.Println("No solution yet for day 13, part 2")
-	return
+func Part2(input string) int {
+	eqs := readEqs(input)
+	var coins int
+	for _, eq := range eqs {
+		eq.xt += 1e13
+		eq.yt += 1e13
+		na, nb := eq.Solve()
+		if na < 0 || nb < 0 {
+			continue
+		}
+
+		coins += 3*na + nb
+	}
+
+	return coins
 }
 
 type Equation struct {
@@ -33,19 +44,21 @@ type Equation struct {
 
 func (e *Equation) Solve() (na, nb int) {
 	den := e.xa*e.yb - e.ya*e.xb
+	// Ignore this case unless it becomes an issue
 	if den == 0 {
-		if e.xt/e.xa == e.yt/e.ya {
-			nb = e.xt / e.xa
-			na = 0
-		} else {
-			na, nb = 0, 0
-		}
-		return na, nb
+		panic("div 0")
 	}
 
+	// get approximate solution in ints
 	nb = (e.yt*e.xa - e.xt*e.ya) / den
 	na = (e.xt - nb*e.xb) / e.xa
-	return na, nb
+
+	// Check if we're perfectly on it
+	if na*e.xa+nb*e.xb == e.xt && na*e.ya+nb*e.yb == e.yt {
+		return na, nb
+	} else {
+		return 0, 0
+	}
 }
 
 func readEqs(input string) []Equation {
