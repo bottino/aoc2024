@@ -2,57 +2,29 @@ package day12
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 )
 
 func Part1(input string) int {
 	garden := readGarden(input)
-	N := len(garden)
-
+	lots := maps.Clone(garden)
+	regions := []Region{}
 	var regionId int
-	garden[0][0].region = 0
-	regions := []Region{{}}
-	for i := 0; i < N; i++ {
-		M := len(garden[i])
-		for j := 0; j < M; j++ {
-			lot := garden[i][j]
-			var perimeter int
-
-			for _, c := range [][]int{{0, 1}, {1, 0}, {-1, 0}, {0, -1}} {
-				nx, ny := i+c[0], j+c[1]
-				// check bounds
-				if nx < 0 || nx >= N || ny < 0 || ny >= M {
-					perimeter++
-					continue
-				}
-
-				n := garden[nx][ny]
-				if n.plant == lot.plant {
-					if n.region != -1 {
-						lot.region = n.region
-					}
-				} else {
-					perimeter++
-				}
-			}
-
-			if lot.region == -1 {
-				regionId++
-				lot.region = regionId
-				regions = append(regions, Region{})
-			}
-
-			fmt.Println(i, j, string(lot.plant), lot.region)
-
-			regions[lot.region].area += 1
-			regions[lot.region].perimeter += perimeter
+	for len(lots) > 0 {
+		lot := getFirstLot(lots)
+		region := Region{id: regionId, coords: make(map[Coord]bool)}
+		exploreRegion(lot, &region, garden)
+		for k := range region.coords {
+			delete(lots, k)
 		}
+		regionId++
+		regions = append(regions, region)
 	}
 
 	var solution int
-	for _, r := range regions {
-		fmt.Println(r)
-		solution += r.area * r.perimeter
+	for _, region := range regions {
+		solution += region.area * region.perimeter
 	}
 
 	return solution
@@ -63,29 +35,59 @@ func Part2(input string) (solution int) {
 	return
 }
 
-type Garden [][]*Lot
+func exploreRegion(lot Coord, region *Region, garden Garden) {
+	region.area++
+	region.coords[lot] = true
+	for _, d := range []Coord{{0, 1}, {1, 0}, {-1, 0}, {0, -1}} {
+		nCoord := Coord{lot.x + d.x, lot.y + d.y}
+		nPlant, ok := garden[nCoord]
 
-type Lot struct {
-	plant  rune
-	region int
+		// Handle off the map
+		if !ok {
+			region.perimeter++
+			continue
+		}
+
+		// Handle already explored
+
+		if garden[lot] == nPlant {
+			if !region.coords[nCoord] {
+				exploreRegion(nCoord, region, garden)
+			}
+		} else {
+			region.perimeter++
+		}
+	}
+
+	return
 }
 
-type Region struct {
-	area      int
-	perimeter int
+func getFirstLot(garden Garden) Coord {
+	for k := range garden {
+		return k
+	}
+	return Coord{0, 0}
 }
 
 type Coord struct {
 	x, y int
 }
 
+type Region struct {
+	id        int
+	area      int
+	perimeter int
+	coords    map[Coord]bool
+}
+
+type Garden map[Coord]rune
+
 func readGarden(input string) (garden Garden) {
-	for _, line := range strings.Split(input, "\n") {
-		row := make([]*Lot, len(line), len(line))
+	garden = make(Garden, len(input))
+	for i, line := range strings.Split(input, "\n") {
 		for j, char := range line {
-			row[j] = &Lot{char, -1}
+			garden[Coord{i, j}] = char
 		}
-		garden = append(garden, row)
 	}
 
 	return garden
