@@ -15,7 +15,10 @@ func TestPQueue(t *testing.T) {
 		pq.AddWithRank(k, v)
 	}
 
-	expected := []string{"apple", "banana", "pear"}
+	// Update with pear
+	pq.AddWithRank("pear", 0)
+
+	expected := []string{"pear", "apple", "banana"}
 	for _, exp := range expected {
 		popped := pq.PopMin()
 		if popped != exp {

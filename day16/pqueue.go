@@ -1,6 +1,8 @@
 package day16
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 type Item[T comparable] struct {
 	value T
@@ -9,39 +11,50 @@ type Item[T comparable] struct {
 }
 
 // Implements heap.Interface
-type PriorityQueue[T comparable] []*Item[T]
+type PriorityQueue[T comparable] struct {
+	q      []*Item[T]
+	lookup map[T]*Item[T]
+}
 
 func (pq *PriorityQueue[T]) Len() int {
-	return len(*pq)
+	return len((*pq).q)
 }
 
 func (pq *PriorityQueue[T]) Less(i, j int) bool {
-	return (*pq)[i].rank < (*pq)[j].rank
+	return (*pq).q[i].rank < (*pq).q[j].rank
 }
 
 func (pq *PriorityQueue[T]) Swap(i, j int) {
-	(*pq)[i], (*pq)[j] = (*pq)[j], (*pq)[i]
-	(*pq)[i].index = i
-	(*pq)[j].index = j
+	(*pq).q[i], (*pq).q[j] = (*pq).q[j], (*pq).q[i]
+	(*pq).q[i].index = i
+	(*pq).q[j].index = j
 }
 
 func (pq *PriorityQueue[T]) Push(x any) {
 	item := x.(*Item[T])
 	item.index = (*pq).Len()
-	*pq = append(*pq, item)
+	(*pq).lookup[item.value] = item
+	(*pq).q = append((*pq).q, item)
 }
 
 func (pq *PriorityQueue[T]) Pop() any {
-	old := *pq
+	oldq := (*pq).q
 	n := (*pq).Len()
-	item := (*pq)[n-1]
-	*pq = old[:n-1]
+	item := (*pq).q[n-1]
+	(*pq).q = oldq[:n-1]
+	delete((*pq).lookup, item.value)
 	return item
 }
 
+// Adds an item if doesn't exist, updates the rank if it does
 func (pq *PriorityQueue[T]) AddWithRank(value T, rank int) {
-	item := Item[T]{value: value, rank: rank}
-	heap.Push(pq, &item)
+	if pItem, ok := (*pq).lookup[value]; ok {
+		pItem.rank = rank
+		heap.Fix(pq, pItem.index)
+	} else {
+		item := Item[T]{value: value, rank: rank}
+		heap.Push(pq, &item)
+	}
 }
 
 func (pq *PriorityQueue[T]) PopMin() T {
@@ -51,7 +64,10 @@ func (pq *PriorityQueue[T]) PopMin() T {
 }
 
 func NewPQueue[T comparable]() PriorityQueue[T] {
-	pq := make(PriorityQueue[T], 0, 0)
+	pq := PriorityQueue[T]{
+		make([]*Item[T], 0, 0),
+		make(map[T]*Item[T]),
+	}
 	heap.Init(&pq)
 	return pq
 }

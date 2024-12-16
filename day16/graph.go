@@ -5,7 +5,7 @@ import "math"
 // Graph with integer distance metric
 type Graph[T comparable] struct {
 	adjList  map[T][]T
-	distFunc func(T, T, T) int
+	distFunc func(T, T) int
 }
 
 func (g *Graph[T]) neighbors(node T) []T {
@@ -29,7 +29,7 @@ func (g *Graph[T]) nV() int {
 	return len(g.adjList)
 }
 
-func NewGraph[T comparable](distFunc func(T, T, T) int) Graph[T] {
+func NewGraph[T comparable](distFunc func(T, T) int) Graph[T] {
 	return Graph[T]{make(map[T][]T), distFunc}
 }
 
@@ -44,12 +44,10 @@ func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T]T) {
 
 	dist[source] = 0
 	pq.AddWithRank(source, 0)
-	for len(pq) > 0 {
+	for pq.Len() > 0 {
 		u := pq.PopMin()
 		for _, v := range g.neighbors(u) {
-			p := prev[u]
-
-			d := dist[u] + g.distFunc(u, v, p)
+			d := dist[u] + g.distFunc(u, v)
 			if d < dist[v] {
 				prev[v] = u
 				dist[v] = d

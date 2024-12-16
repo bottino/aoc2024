@@ -2,6 +2,7 @@ package day16
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -9,25 +10,25 @@ func Part1(input string) (solution int) {
 	tiles, start, end := readMaze(input)
 	maze := NewGraph(costFunc)
 	for tile := range tiles {
-		for _, d := range []Coord{north, south, east, west} {
-			nTile := tile.Add(d)
+		for _, nDir := range []Coord{north, south, east, west} {
+			nTile := tile.Add(nDir)
 			if tiles[nTile] {
-				maze.addEdge(tile, nTile)
+				for _, dir := range []Coord{north, south, east, west} {
+					maze.addEdge(Node{tile, dir}, Node{nTile, nDir})
+				}
 			}
 		}
 	}
 
-	dist, prev := maze.dijkstra(start)
+	dist, _ := maze.dijkstra(Node{start, east})
 
-	dest := prev[end]
-	path := []Coord{dest}
-	for dest != start {
-		dest = prev[dest]
-		path = append(path, dest)
+	minDist := math.MaxInt
+	for _, dir := range []Coord{north, south, east, west} {
+		if d, ok := dist[Node{end, dir}]; ok && d < minDist {
+			minDist = d
+		}
 	}
-
-	// fmt.Println(path)
-	return dist[end]
+	return minDist
 }
 
 func Part2(input string) (solution int) {
@@ -50,23 +51,15 @@ func (lhs *Coord) Add(rhs Coord) Coord {
 	return Coord{lhs.x + rhs.x, lhs.y + rhs.y}
 }
 
-type Maze Graph[Coord]
+type Node struct {
+	tile Coord
+	dir  Coord
+}
 
-func costFunc(b Coord, c Coord, a Coord) int {
-	ab := Coord{b.x - a.x, b.y - a.y}
-	bc := Coord{c.x - b.x, c.y - b.y}
+type Maze Graph[Node]
 
-	// Handle no previous
-	var defaultCoord Coord
-	if a == defaultCoord {
-		ab = east
-	}
-
-	dot := ab.x*bc.x + ab.y*bc.y
-
-	if a == defaultCoord {
-		fmt.Println(a, b, c, dot)
-	}
+func costFunc(u Node, v Node) int {
+	dot := u.dir.x*v.dir.x + u.dir.y*v.dir.y
 	switch dot {
 	case 0:
 		return 1001
