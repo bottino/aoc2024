@@ -33,9 +33,9 @@ func NewGraph[T comparable](distFunc func(T, T) int) Graph[T] {
 	return Graph[T]{make(map[T][]T), distFunc}
 }
 
-func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T]T) {
+func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T][]T) {
 	dist = make(map[T]int, g.nV())
-	prev = make(map[T]T, g.nV())
+	prev = make(map[T][]T, g.nV())
 
 	pq := NewPQueue[T]()
 	for v := range g.adjList {
@@ -48,9 +48,13 @@ func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T]T) {
 		u := pq.PopMin()
 		for _, v := range g.neighbors(u) {
 			d := dist[u] + g.distFunc(u, v)
-			if d < dist[v] {
-				prev[v] = u
-				dist[v] = d
+			// found shortest path yet, resetting prev
+			if d <= dist[v] {
+				if d < dist[v] {
+					dist[v] = d
+					prev[v] = []T{}
+				}
+				prev[v] = append(prev[v], u)
 				pq.AddWithRank(v, d)
 			}
 		}

@@ -1,25 +1,12 @@
 package day16
 
 import (
-	"fmt"
 	"math"
 	"strings"
 )
 
-func Part1(input string) (solution int) {
-	tiles, start, end := readMaze(input)
-	maze := NewGraph(costFunc)
-	for tile := range tiles {
-		for _, nDir := range []Coord{north, south, east, west} {
-			nTile := tile.Add(nDir)
-			if tiles[nTile] {
-				for _, dir := range []Coord{north, south, east, west} {
-					maze.addEdge(Node{tile, dir}, Node{nTile, nDir})
-				}
-			}
-		}
-	}
-
+func Part1(input string) int {
+	maze, start, end := buildMaze(input)
 	dist, _ := maze.dijkstra(Node{start, east})
 
 	minDist := math.MaxInt
@@ -31,9 +18,63 @@ func Part1(input string) (solution int) {
 	return minDist
 }
 
-func Part2(input string) (solution int) {
-	fmt.Println("No solution yet for day 16, part 2")
-	return
+func Part2(input string) int {
+	maze, start, end := buildMaze(input)
+	dist, prev := maze.dijkstra(Node{start, east})
+
+	// A bit dirty; we check for all possible orientation if they have
+	// best paths, and only count those
+	minDist := math.MaxInt
+	for _, dir := range []Coord{north, south, east, west} {
+		if d, ok := dist[Node{end, dir}]; ok && d < minDist {
+			minDist = d
+		}
+	}
+
+	var numSeats int
+	for _, dir := range []Coord{north, south, east, west} {
+		if dist[Node{end, dir}] == minDist {
+			numSeats += len(getSeats(Node{end, dir}, prev))
+		}
+	}
+
+	return numSeats
+}
+
+func getSeats(endNode Node, prev map[Node][]Node) map[Coord]bool {
+	seats := make(map[Coord]bool)
+	if _, ok := prev[endNode]; !ok {
+		return seats
+	}
+
+	stack := []Node{endNode}
+	for len(stack) > 0 {
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		seats[current.tile] = true
+		for _, p := range prev[current] {
+			stack = append(stack, p)
+		}
+	}
+
+	return seats
+}
+
+func buildMaze(input string) (maze Graph[Node], start Coord, end Coord) {
+	tiles, start, end := readMaze(input)
+	maze = NewGraph(costFunc)
+	for tile := range tiles {
+		for _, nDir := range []Coord{north, south, east, west} {
+			nTile := tile.Add(nDir)
+			if tiles[nTile] {
+				for _, dir := range []Coord{north, south, east, west} {
+					maze.addEdge(Node{tile, dir}, Node{nTile, nDir})
+				}
+			}
+		}
+	}
+
+	return maze, start, end
 }
 
 type Coord struct {
@@ -55,8 +96,6 @@ type Node struct {
 	tile Coord
 	dir  Coord
 }
-
-type Maze Graph[Node]
 
 func costFunc(u Node, v Node) int {
 	dot := u.dir.x*v.dir.x + u.dir.y*v.dir.y
