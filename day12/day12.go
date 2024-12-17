@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	regions := processRegions(input)
 	var solution int
 	for _, region := range regions {
@@ -15,7 +15,7 @@ func Part1(input string) int {
 	return solution
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	regions := processRegions(input)
 	var solution int
 	for _, region := range regions {

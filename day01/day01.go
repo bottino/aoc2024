@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	var left, right []int = return_lists(input)
 	slices.Sort(left)
 	slices.Sort(right)
@@ -21,7 +21,7 @@ func Part1(input string) int {
 	return total_distance
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	var left, right []int = return_lists(input)
 	var similarity int
 	for i := range left {

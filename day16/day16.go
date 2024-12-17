@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	maze, start, end := buildMaze(input)
 	dist, _ := maze.dijkstra(Node{start, east})
 
@@ -18,7 +18,7 @@ func Part1(input string) int {
 	return minDist
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	maze, start, end := buildMaze(input)
 	dist, prev := maze.dijkstra(Node{start, east})
 

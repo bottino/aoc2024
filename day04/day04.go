@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-func Part1(input string) (xmas int) {
+func Part1(input string) any {
+	var xmas int
 	mat := readInput(input)
 
 	filters := []Mat{
@@ -25,10 +26,11 @@ func Part1(input string) (xmas int) {
 		xmas += countFilterMatches(mat, filter)
 	}
 
-	return
+	return xmas
 }
 
-func Part2(input string) (xmas int) {
+func Part2(input string) any {
+	var xmas int
 	mat := readInput(input)
 
 	filters := []Mat{
@@ -45,7 +47,7 @@ func Part2(input string) (xmas int) {
 		xmas += countFilterMatches(mat, filter)
 	}
 
-	return
+	return xmas
 }
 
 func augmentFilters(filters []Mat) (allFilters []Mat) {

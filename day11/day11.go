@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	var numStones int
 	stones := buildStoneMap(input)
 	for i := 0; i < 25; i++ {
@@ -16,7 +16,7 @@ func Part1(input string) int {
 	return numStones
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	var numStones int
 	stones := buildStoneMap(input)
 	for i := 0; i < 75; i++ {

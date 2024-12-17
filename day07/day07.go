@@ -17,12 +17,12 @@ var concat Operator = func(a int, b int) int {
 	return a*int(math.Pow(10, float64(numDigits))) + b
 }
 
-func Part1(input string) int {
+func Part1(input string) any {
 	operators := []Operator{add, mul}
 	return solve(input, operators)
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	operators := []Operator{add, mul, concat}
 	return solve(input, operators)
 }

@@ -4,11 +4,11 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	return Solve(input, true)
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	return Solve(input, false)
 }
 

@@ -4,7 +4,8 @@ import (
 	"strconv"
 )
 
-func Part1(input string) (solution int) {
+func Part1(input string) any {
+	var solution int
 	memory, free := readInput(input)
 
 	freeCount := 0
@@ -36,7 +37,7 @@ func Part1(input string) (solution int) {
 	return solution
 }
 
-func Part2(input string) (solution int) {
+func Part2(input string) any {
 	chunks, free := readChunks(input)
 	memory := chunksToInts(chunks)
 	for i := len(chunks) - 1; i >= 0; i-- {
@@ -60,6 +61,7 @@ func Part2(input string) (solution int) {
 		}
 	}
 
+	var solution int
 	for i, v := range memory {
 		if v == -1 {
 			continue

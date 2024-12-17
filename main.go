@@ -18,8 +18,8 @@ import (
 
 type aocDay struct {
 	Number int
-	Part1  func(string) int
-	Part2  func(string) int
+	Part1  func(string) any
+	Part2  func(string) any
 }
 
 // Only run from the root of the repo
@@ -94,7 +94,7 @@ type AocSolution struct {
 	Day        int
 	Part       int
 	Time       float64
-	Solution   int
+	Solution   any
 	UseExample bool
 }
 
@@ -104,7 +104,7 @@ func (s *AocSolution) String() string {
 		exampleStr = " (example)"
 	}
 	return fmt.Sprintf(
-		"Day %02d, part %d%s. Solution: %d, Time elapsed %.2f ms",
+		"Day %02d, part %d%s. Solution: %v, Time elapsed %.2f ms",
 		s.Day, s.Part, exampleStr, s.Solution, s.Time,
 	)
 }

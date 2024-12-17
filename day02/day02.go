@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	reports := readLevels(input)
 	var numSafe int
 	for i := range reports {
@@ -17,7 +17,7 @@ func Part1(input string) int {
 	return numSafe
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	reports := readLevels(input)
 	var numSafe int
 	for i := range reports {

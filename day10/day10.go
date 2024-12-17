@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	emap, trailheads := readElevations(input)
 	var numTrails int
 	for _, th := range trailheads {
@@ -17,7 +17,7 @@ func Part1(input string) int {
 	return numTrails
 }
 
-func Part2(input string) (solution int) {
+func Part2(input string) any {
 	emap, trailheads := readElevations(input)
 	var numTrails int
 	for _, th := range trailheads {

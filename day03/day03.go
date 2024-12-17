@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
 	matches := re.FindAllStringSubmatch(input, -1)
 	var sum int
@@ -18,10 +18,11 @@ func Part1(input string) int {
 	return sum
 }
 
-func Part2(input string) (sum int) {
+func Part2(input string) any {
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)|do\(\)|don't\(\)`)
 	matches := re.FindAllStringSubmatch(input, -1)
 	enabled := true
+	var sum int
 	for _, m := range matches {
 		switch m[0] {
 		case "do()":

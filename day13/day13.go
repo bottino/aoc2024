@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Part1(input string) int {
+func Part1(input string) any {
 	eqs := readEqs(input)
 	var coins int
 	for _, eq := range eqs {
@@ -21,7 +21,7 @@ func Part1(input string) int {
 	return coins
 }
 
-func Part2(input string) int {
+func Part2(input string) any {
 	eqs := readEqs(input)
 	var coins int
 	for _, eq := range eqs {

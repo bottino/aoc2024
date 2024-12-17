@@ -9,7 +9,8 @@ import (
 
 type RuleMap map[string](map[string]bool)
 
-func Part1(input string) (solution int) {
+func Part1(input string) any {
+	var solution int
 	rules, updates := readInput(input)
 	for _, update := range updates {
 		if slices.IsSortedFunc(update, comparePages(rules)) {
@@ -18,10 +19,11 @@ func Part1(input string) (solution int) {
 		}
 	}
 
-	return
+	return solution
 }
 
-func Part2(input string) (solution int) {
+func Part2(input string) any {
+	var solution int
 	rules, updates := readInput(input)
 	for _, update := range updates {
 		if slices.IsSortedFunc(update, comparePages(rules)) == false {
@@ -31,7 +33,7 @@ func Part2(input string) (solution int) {
 		}
 	}
 
-	return
+	return solution
 }
 
 func readInput(input string) (rules RuleMap, updates [][]string) {

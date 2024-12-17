@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func Part1(input string) (solution int) {
+func Part1(input string) any {
 	grid, guard := readInput(input)
 	sys := System{guard.Clone(), grid, Coord{-1, -1}}
 
@@ -14,7 +14,7 @@ func Part1(input string) (solution int) {
 	return len(visited) + 1 // the starting square
 }
 
-func Part2(input string) (solution int) {
+func Part2(input string) any {
 	grid, guard := readInput(input)
 
 	sys := System{guard.Clone(), grid, Coord{-1, -1}}
@@ -38,13 +38,14 @@ func Part2(input string) (solution int) {
 	wg.Wait()
 	close(c)
 
+	var solution int
 	for isLoop := range c {
 		if isLoop {
 			solution++
 		}
 	}
 
-	return
+	return solution
 }
 
 func findLoopInSystem(sys System, c chan bool, wg *sync.WaitGroup) {
