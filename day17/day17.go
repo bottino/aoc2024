@@ -13,8 +13,22 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 17, part 2")
-	return ""
+	comp := readInput(input)
+	var regA int
+	var correctCopy bool
+	for !correctCopy {
+		c := comp.Clone()
+		c.regA = regA
+		correctCopy = c.checkProgramCopy()
+
+		if regA%1e9 == 0 {
+			fmt.Println(regA, len(c.output), len(c.program))
+		}
+
+		regA++
+	}
+
+	return regA
 }
 
 type Computer struct {
@@ -22,6 +36,14 @@ type Computer struct {
 	program          []int
 	output           []int
 	pInstr           *int
+}
+
+func (c *Computer) Clone() Computer {
+	return Computer{
+		regA: c.regA, regB: c.regB, regC: c.regC,
+		program: c.program,
+		output:  []int{},
+	}
 }
 
 func (c *Computer) combo(opcode int) int {
@@ -41,12 +63,29 @@ func (c *Computer) combo(opcode int) int {
 	}
 }
 
+func (c *Computer) checkProgramCopy() bool {
+	c.pInstr = new(int)
+	instructions := []func(int){c.adv, c.bxl, c.bst, c.jnz, c.bxc, c.out, c.bdv, c.cdv}
+	for *c.pInstr < len(c.program) {
+		l := len(c.output)
+		p := *c.pInstr
+		// fmt.Println(p, c.program[p], c.program[p+1])
+		instructions[c.program[p]](c.program[p+1])
+		if len(c.output) > l {
+			if c.output[len(c.output)-1] != c.program[len(c.output)-1] {
+				return false
+			}
+		}
+	}
+
+	return len(c.program) == len(c.output)
+}
+
 func (c *Computer) runProgram() string {
 	c.pInstr = new(int)
 	instructions := []func(int){c.adv, c.bxl, c.bst, c.jnz, c.bxc, c.out, c.bdv, c.cdv}
 	for *c.pInstr < len(c.program) {
 		p := *c.pInstr
-		// fmt.Println(p, c.program[p], c.program[p+1])
 		instructions[c.program[p]](c.program[p+1])
 	}
 
