@@ -17,6 +17,7 @@ import (
 	"github.com/bottino/aoc2024/day13"
 	"github.com/bottino/aoc2024/day16"
 	"github.com/bottino/aoc2024/day17"
+	"github.com/bottino/aoc2024/day19"
 )
 
 var days = map[int]aocDay{
@@ -35,4 +36,5 @@ var days = map[int]aocDay{
 	13: {13, day13.Part1, day13.Part2},
 	16: {16, day16.Part1, day16.Part2},
 	17: {17, day17.Part1, day17.Part2},
+	19: {19, day19.Part1, day19.Part2},
 }
