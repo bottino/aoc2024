@@ -1,7 +1,6 @@
 package day19
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -20,8 +19,15 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 19, part 2")
-	return 0
+	patterns, designs := readInputFile(input)
+
+	var allWays int
+	memo := make(map[string]int)
+	for _, d := range designs {
+		allWays += getWays(d, patterns, memo)
+	}
+
+	return allWays
 }
 
 func isPossible(design string, patterns []string, memo map[string]bool) bool {
@@ -50,10 +56,27 @@ func isPossible(design string, patterns []string, memo map[string]bool) bool {
 	return false
 }
 
-func readInput(input string) {
-	for _, line := range strings.Split(input, "\n") {
-		fmt.Println(line)
+func getWays(design string, patterns []string, memo map[string]int) int {
+	if v, ok := memo[design]; ok {
+		return v
 	}
+
+	var ways int
+	for _, p := range patterns {
+		nP := len(p)
+		nD := len(design)
+		if nD >= nP && len(design[:nP]) == nP && design[:nP] == p {
+			if nD == nP {
+				ways++
+			}
+			rem := design[nP:]
+
+			ways += getWays(rem, patterns, memo)
+		}
+	}
+
+	memo[design] = ways
+	return ways
 }
 
 func readInputFile(input string) ([]string, []string) {
