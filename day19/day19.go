@@ -9,8 +9,9 @@ func Part1(input string) any {
 	patterns, designs := readInputFile(input)
 
 	var numPossible int
+	memo := make(map[string]bool)
 	for _, d := range designs {
-		if isPossible(d, patterns) {
+		if isPossible(d, patterns, memo) {
 			numPossible++
 		}
 	}
@@ -23,22 +24,29 @@ func Part2(input string) any {
 	return 0
 }
 
-func isPossible(design string, patterns []string) bool {
+func isPossible(design string, patterns []string, memo map[string]bool) bool {
+	if v, ok := memo[design]; ok {
+		return v
+	}
+
 	for _, p := range patterns {
 		nP := len(p)
 		nD := len(design)
 		if nD >= nP && len(design[:nP]) == nP && design[:nP] == p {
 			if nD == nP {
+				memo[design] = true
 				return true
 			}
 			rem := design[nP:]
 
-			if isPossible(rem, patterns) {
+			if isPossible(rem, patterns, memo) {
+				memo[design] = true
 				return true
 			}
 		}
 	}
 
+	memo[design] = false
 	return false
 }
 
