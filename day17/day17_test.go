@@ -33,6 +33,10 @@ func TestDay17(t *testing.T) {
 			comp:   Computer{regB: 2024, regC: 43690, program: []int{4, 0}},
 			expReg: map[rune]int{'B': 44354},
 		},
+		{
+			comp:      Computer{regA: 117440, program: []int{0, 3, 5, 4, 3, 0}},
+			expOutput: "0,3,5,4,3,0",
+		},
 	}
 
 	for i, d := range testData {

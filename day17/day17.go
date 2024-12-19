@@ -14,23 +14,25 @@ func Part1(input string) any {
 
 func Part2(input string) any {
 	comp := readInput(input)
-	var regA int
+	var i int
 	var correctCopy bool
+	mul := int(math.Pow(2, float64(len(comp.program))))
 	for !correctCopy {
 		c := comp.Clone()
-		c.regA = regA
+		c.regA = i * mul
 		correctCopy = c.checkProgramCopy()
 
-		if regA%1e9 == 0 {
-			fmt.Println(regA, len(c.output), len(c.program))
+		if i%1e9 == 0 {
+			fmt.Println(i, len(c.output), len(c.program))
 		}
 
-		regA++
+		i++
 	}
 
-	return regA
+	return (i - 1) * mul
 }
 
+// A structure that holds computer operations
 type Computer struct {
 	regA, regB, regC int
 	program          []int
@@ -69,7 +71,6 @@ func (c *Computer) checkProgramCopy() bool {
 	for *c.pInstr < len(c.program) {
 		l := len(c.output)
 		p := *c.pInstr
-		// fmt.Println(p, c.program[p], c.program[p+1])
 		instructions[c.program[p]](c.program[p+1])
 		if len(c.output) > l {
 			if c.output[len(c.output)-1] != c.program[len(c.output)-1] {
@@ -100,27 +101,26 @@ func (c *Computer) runProgram() string {
 	return out
 }
 
+// 0
 func (c *Computer) adv(op int) {
 	den := int(math.Pow(2, float64(c.combo(op))))
 	c.regA = c.regA / den
 	*c.pInstr += 2
 }
 
+// 1
 func (c *Computer) bxl(op int) {
 	c.regB = c.regB ^ op
 	*c.pInstr += 2
 }
 
+// 2
 func (c *Computer) bst(op int) {
 	c.regB = c.combo(op) % 8
 	*c.pInstr += 2
 }
 
-func (c *Computer) bxc(_ int) {
-	c.regB = c.regB ^ c.regC
-	*c.pInstr += 2
-}
-
+// 3
 func (c *Computer) jnz(op int) {
 	if c.regA == 0 {
 		*c.pInstr += 2
@@ -130,17 +130,26 @@ func (c *Computer) jnz(op int) {
 	*c.pInstr = op
 }
 
+// 4
+func (c *Computer) bxc(_ int) {
+	c.regB = c.regB ^ c.regC
+	*c.pInstr += 2
+}
+
+// 5
 func (c *Computer) out(op int) {
 	c.output = append(c.output, c.combo(op)%8)
 	*c.pInstr += 2
 }
 
+// 6
 func (c *Computer) bdv(op int) {
 	den := int(math.Pow(2, float64(c.combo(op))))
 	c.regB = c.regA / den
 	*c.pInstr += 2
 }
 
+// 7
 func (c *Computer) cdv(op int) {
 	den := int(math.Pow(2, float64(c.combo(op))))
 	c.regC = c.regA / den
