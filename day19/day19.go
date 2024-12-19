@@ -12,7 +12,6 @@ func Part1(input string) any {
 	for _, d := range designs {
 		if isPossible(d, patterns) {
 			numPossible++
-			fmt.Println(d)
 		}
 	}
 
@@ -34,12 +33,15 @@ func isPossible(design string, patterns []string) bool {
 			}
 			rem := design[nP:]
 
-			return isPossible(rem, patterns)
+			if isPossible(rem, patterns) {
+				return true
+			}
 		}
 	}
 
 	return false
 }
+
 func readInput(input string) {
 	for _, line := range strings.Split(input, "\n") {
 		fmt.Println(line)
