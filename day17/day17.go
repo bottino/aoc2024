@@ -14,22 +14,39 @@ func Part1(input string) any {
 
 func Part2(input string) any {
 	comp := readInput(input)
-	var i int
-	var correctCopy bool
-	mul := int(math.Pow(2, float64(len(comp.program))))
-	for !correctCopy {
-		c := comp.Clone()
-		c.regA = i * mul
-		correctCopy = c.checkProgramCopy()
+	program := comp.program[:len(comp.program)-2]
 
-		if i%1e9 == 0 {
-			fmt.Println(i, len(c.output), len(c.program))
-		}
-
-		i++
+	n := len(comp.program)
+	revOutput := make([]int, n-1, n-1)
+	for i := 1; i < n; i++ {
+		revOutput[n-i-1] = comp.program[i]
 	}
 
-	return (i - 1) * mul
+	var currRegA int
+	for _, expOut := range revOutput {
+		for i := 0; i < 64; i++ { // Bootstrap the first iteration
+			tmpRegA := 8*currRegA + i
+			cmp := Computer{
+				regA:    tmpRegA,
+				program: program,
+				output:  []int{},
+			}
+			cmp.runProgram()
+			if cmp.lastOutput() == expOut {
+				currRegA = tmpRegA
+				break
+			}
+
+			if i == 63 {
+				panic("wtf")
+			}
+		}
+	}
+
+	sol := currRegA
+
+	comp.regA = sol
+	return comp.runProgram()
 }
 
 // A structure that holds computer operations
@@ -38,6 +55,14 @@ type Computer struct {
 	program          []int
 	output           []int
 	pInstr           *int
+}
+
+func (c *Computer) lastOutput() int {
+	if len(c.output) <= 0 {
+		return -1
+	}
+
+	return c.output[len(c.output)-1]
 }
 
 func (c *Computer) Clone() Computer {
@@ -63,23 +88,6 @@ func (c *Computer) combo(opcode int) int {
 	default:
 		panic("Not an 3bit number")
 	}
-}
-
-func (c *Computer) checkProgramCopy() bool {
-	c.pInstr = new(int)
-	instructions := []func(int){c.adv, c.bxl, c.bst, c.jnz, c.bxc, c.out, c.bdv, c.cdv}
-	for *c.pInstr < len(c.program) {
-		l := len(c.output)
-		p := *c.pInstr
-		instructions[c.program[p]](c.program[p+1])
-		if len(c.output) > l {
-			if c.output[len(c.output)-1] != c.program[len(c.output)-1] {
-				return false
-			}
-		}
-	}
-
-	return len(c.program) == len(c.output)
 }
 
 func (c *Computer) runProgram() string {
