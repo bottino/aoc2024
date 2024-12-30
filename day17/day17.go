@@ -14,39 +14,54 @@ func Part1(input string) any {
 
 func Part2(input string) any {
 	comp := readInput(input)
-	program := comp.program[:len(comp.program)-2]
 
 	n := len(comp.program)
-	revOutput := make([]int, n-1, n-1)
-	for i := 1; i < n; i++ {
-		revOutput[n-i-1] = comp.program[i]
-	}
 
 	var currRegA int
-	for _, expOut := range revOutput {
-		for i := 0; i < 64; i++ { // Bootstrap the first iteration
+	maxTries := 8
+	for j := 0; j < n; j++ {
+		for i := 0; i < maxTries; i++ { // Bootstrap the first iteration
 			tmpRegA := 8*currRegA + i
 			cmp := Computer{
 				regA:    tmpRegA,
-				program: program,
+				program: comp.program,
 				output:  []int{},
 			}
+
+			expOut := comp.program[n-j-1 : n]
 			cmp.runProgram()
-			if cmp.lastOutput() == expOut {
+			fmt.Println(expOut, cmp.output)
+
+			if outputEqual(expOut, cmp.output) {
 				currRegA = tmpRegA
 				break
 			}
 
-			if i == 63 {
-				panic("wtf")
+			if i == maxTries-1 {
+				return fmt.Errorf("Couldn't build correct result")
 			}
 		}
 	}
 
 	sol := currRegA
+	fmt.Println(sol)
 
 	comp.regA = sol
 	return comp.runProgram()
+}
+
+func outputEqual(exp []int, actual []int) bool {
+	if len(exp) != len(actual) {
+		return false
+	}
+
+	for i := range len(exp) {
+		if exp[i] != actual[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // A structure that holds computer operations
