@@ -15,39 +15,41 @@ func Part1(input string) any {
 func Part2(input string) any {
 	comp := readInput(input)
 
-	n := len(comp.program)
-
 	var currRegA int
-	maxTries := 8
-	for j := 0; j < n; j++ {
-		for i := 0; i < maxTries; i++ { // Bootstrap the first iteration
-			tmpRegA := 8*currRegA + i
-			cmp := Computer{
-				regA:    tmpRegA,
-				program: comp.program,
-				output:  []int{},
-			}
+	var numOut int
+	pSol := new(int)
+	*pSol = math.MaxInt
+	recurseSolve(currRegA, numOut, comp.program, pSol)
 
-			expOut := comp.program[n-j-1 : n]
-			cmp.runProgram()
-			fmt.Println(expOut, cmp.output)
+	fmt.Println(*pSol)
 
-			if outputEqual(expOut, cmp.output) {
-				currRegA = tmpRegA
-				break
-			}
+	comp.regA = *pSol
+	return comp.runProgram()
+}
 
-			if i == maxTries-1 {
-				return fmt.Errorf("Couldn't build correct result")
-			}
+func recurseSolve(regA int, numOut int, program []int, sol *int) {
+	if numOut == len(program) {
+		if regA < *sol {
+			*sol = regA
 		}
+		return
 	}
 
-	sol := currRegA
-	fmt.Println(sol)
+	for i := 0; i < 8; i++ {
+		tmpRegA := 8*regA + i
+		cmp := Computer{
+			regA:    tmpRegA,
+			program: program,
+			output:  []int{},
+		}
 
-	comp.regA = sol
-	return comp.runProgram()
+		expOut := program[len(program)-numOut-1:]
+		cmp.runProgram()
+
+		if outputEqual(expOut, cmp.output) {
+			recurseSolve(tmpRegA, numOut+1, program, sol)
+		}
+	}
 }
 
 func outputEqual(exp []int, actual []int) bool {
