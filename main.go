@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -79,15 +80,20 @@ func main() {
 		}
 	}
 
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', tabwriter.AlignRight)
+	if verbose {
+		fmt.Fprintln(writer, "day\tpart\t    time\tsolution")
+	}
 	for _, sol := range aocSolutions {
 		sol.Solve()
 
 		if verbose {
-			fmt.Println(&sol)
+			fmt.Fprintln(writer, &sol)
 		} else {
-			fmt.Println(sol.Solution)
+			fmt.Fprintln(writer, sol.Solution)
 		}
 	}
+	writer.Flush()
 }
 
 type AocSolution struct {
@@ -103,9 +109,13 @@ func (s *AocSolution) String() string {
 	if s.UseExample {
 		exampleStr = " (example)"
 	}
-	return fmt.Sprintf(
-		"Day %02d, part %d%s. Solution: %v, Time elapsed %.2f ms",
-		s.Day, s.Part, exampleStr, s.Solution, s.Time,
+	time := fmt.Sprintf("%.2f", s.Time)
+	for len(time) < 8 {
+		time = " " + time
+	}
+	return fmt.Sprintf("%02d\t%d%s\t%s ms\t%v",
+
+		s.Day, s.Part, exampleStr, time, s.Solution,
 	)
 }
 

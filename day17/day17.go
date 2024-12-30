@@ -21,10 +21,7 @@ func Part2(input string) any {
 	*pSol = math.MaxInt
 	recurseSolve(currRegA, numOut, comp.program, pSol)
 
-	fmt.Println(*pSol)
-
-	comp.regA = *pSol
-	return comp.runProgram()
+	return *pSol
 }
 
 func recurseSolve(regA int, numOut int, program []int, sol *int) {
