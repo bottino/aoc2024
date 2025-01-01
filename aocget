@@ -1,0 +1,12 @@
+#!/bin/bash
+
+AOC_URL='https://adventofcode.com/2024'
+for day in 14 15 18 {21..25}; do
+  echo "gen day $day"
+  go run ./start/ -d $day
+  curl "$AOC_URL/day/$day" --cookie "session=$AOC_SESSION" > "./day$day/readme.html"
+  mkdir "./inputs/day$day"
+  curl "$AOC_URL/day/$day/input" --cookie "session=$AOC_SESSION" > "./inputs/day$day/input.txt"
+done
+
+go generate

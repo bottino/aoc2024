@@ -15,10 +15,18 @@ import (
 	"github.com/bottino/aoc2024/day11"
 	"github.com/bottino/aoc2024/day12"
 	"github.com/bottino/aoc2024/day13"
+	"github.com/bottino/aoc2024/day14"
+	"github.com/bottino/aoc2024/day15"
 	"github.com/bottino/aoc2024/day16"
 	"github.com/bottino/aoc2024/day17"
+	"github.com/bottino/aoc2024/day18"
 	"github.com/bottino/aoc2024/day19"
 	"github.com/bottino/aoc2024/day20"
+	"github.com/bottino/aoc2024/day21"
+	"github.com/bottino/aoc2024/day22"
+	"github.com/bottino/aoc2024/day23"
+	"github.com/bottino/aoc2024/day24"
+	"github.com/bottino/aoc2024/day25"
 )
 
 var days = map[int]aocDay{
@@ -35,8 +43,16 @@ var days = map[int]aocDay{
 	11: {11, day11.Part1, day11.Part2},
 	12: {12, day12.Part1, day12.Part2},
 	13: {13, day13.Part1, day13.Part2},
+	14: {14, day14.Part1, day14.Part2},
+	15: {15, day15.Part1, day15.Part2},
 	16: {16, day16.Part1, day16.Part2},
 	17: {17, day17.Part1, day17.Part2},
+	18: {18, day18.Part1, day18.Part2},
 	19: {19, day19.Part1, day19.Part2},
 	20: {20, day20.Part1, day20.Part2},
+	21: {21, day21.Part1, day21.Part2},
+	22: {22, day22.Part1, day22.Part2},
+	23: {23, day23.Part1, day23.Part2},
+	24: {24, day24.Part1, day24.Part2},
+	25: {25, day25.Part1, day25.Part2},
 }
