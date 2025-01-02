@@ -29,6 +29,8 @@ func (g *Graph[T]) AddEdge(u T, v T) {
 	} else {
 		g.AdjList[u] = []T{v}
 	}
+
+	g.nodes = nil // reset node caching so they get recalculated
 }
 
 func (g *Graph[T]) Nodes() []T {

@@ -4,7 +4,30 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
+
+func TestNodes(t *testing.T) {
+	less := func(a string, b string) bool {
+		return a < b
+	}
+	g := New[string]()
+	g.AddEdge("a", "b")
+	g.AddEdge("b", "f")
+
+	nodes := g.Nodes()
+	if diff := cmp.Diff([]string{"a", "b", "f"}, nodes, cmpopts.SortSlices(less)); diff != "" {
+		t.Error(diff)
+	}
+
+	g.AddEdge("a", "c")
+	g.AddEdge("c", "f")
+
+	nodes = g.Nodes()
+	if diff := cmp.Diff([]string{"a", "b", "c", "f"}, nodes, cmpopts.SortSlices(less)); diff != "" {
+		t.Error(diff)
+	}
+}
 
 func TestDijkstra(t *testing.T) {
 	g := New[string]()
