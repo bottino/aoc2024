@@ -2,8 +2,6 @@ package day17
 
 import (
 	_ "embed"
-	"fmt"
-	"strings"
 	"testing"
 )
 
@@ -71,17 +69,5 @@ func TestDay17(t *testing.T) {
 				)
 			}
 		}
-	}
-}
-
-//go:embbed input.txt
-var input string
-
-func TestCheck(t *testing.T) {
-	fmt.Println(input)
-	input := strings.TrimRight(input, "\n")
-	regA := Part2(input)
-	if regA != 177440 {
-		t.Errorf("Wrong regA: %d", regA)
 	}
 }
