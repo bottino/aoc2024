@@ -3,11 +3,13 @@ package day16
 import (
 	"math"
 	"strings"
+
+	"github.com/bottino/aoc2024/graphs"
 )
 
 func Part1(input string) any {
 	maze, start, end := buildMaze(input)
-	dist, _ := maze.dijkstra(Node{start, east})
+	dist, _ := maze.Dijkstra(Node{start, east}, costFunc)
 
 	minDist := math.MaxInt
 	for _, dir := range []Coord{north, south, east, west} {
@@ -20,7 +22,7 @@ func Part1(input string) any {
 
 func Part2(input string) any {
 	maze, start, end := buildMaze(input)
-	dist, prev := maze.dijkstra(Node{start, east})
+	dist, prev := maze.Dijkstra(Node{start, east}, costFunc)
 
 	// A bit dirty; we check for all possible orientation if they have
 	// best paths, and only count those
@@ -60,15 +62,15 @@ func getSeats(endNode Node, prev map[Node][]Node) map[Coord]bool {
 	return seats
 }
 
-func buildMaze(input string) (maze Graph[Node], start Coord, end Coord) {
+func buildMaze(input string) (maze graphs.Graph[Node], start Coord, end Coord) {
 	tiles, start, end := readMaze(input)
-	maze = NewGraph(costFunc)
+	maze = graphs.New[Node]()
 	for tile := range tiles {
 		for _, nDir := range []Coord{north, south, east, west} {
 			nTile := tile.Add(nDir)
 			if tiles[nTile] {
 				for _, dir := range []Coord{north, south, east, west} {
-					maze.addEdge(Node{tile, dir}, Node{nTile, nDir})
+					maze.AddEdge(Node{tile, dir}, Node{nTile, nDir})
 				}
 			}
 		}

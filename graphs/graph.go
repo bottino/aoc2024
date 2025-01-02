@@ -1,14 +1,13 @@
-package day16
+package graphs
 
 import "math"
 
 // Graph with integer distance metric
 type Graph[T comparable] struct {
-	adjList  map[T][]T
-	distFunc func(T, T) int
+	adjList map[T][]T
 }
 
-func (g *Graph[T]) neighbors(node T) []T {
+func (g *Graph[T]) Neighbors(node T) []T {
 	n, ok := g.adjList[node]
 	if ok {
 		return n
@@ -16,7 +15,7 @@ func (g *Graph[T]) neighbors(node T) []T {
 	return []T{}
 }
 
-func (g *Graph[T]) addEdge(u T, v T) {
+func (g *Graph[T]) AddEdge(u T, v T) {
 	adjs, ok := g.adjList[u]
 	if ok {
 		g.adjList[u] = append(adjs, v) // ignore duplicate edges
@@ -25,17 +24,17 @@ func (g *Graph[T]) addEdge(u T, v T) {
 	}
 }
 
-func (g *Graph[T]) nV() int {
+func (g *Graph[T]) NV() int {
 	return len(g.adjList)
 }
 
-func NewGraph[T comparable](distFunc func(T, T) int) Graph[T] {
-	return Graph[T]{make(map[T][]T), distFunc}
+func New[T comparable]() Graph[T] {
+	return Graph[T]{make(map[T][]T)}
 }
 
-func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T][]T) {
-	dist = make(map[T]int, g.nV())
-	prev = make(map[T][]T, g.nV())
+func (g *Graph[T]) Dijkstra(source T, distFunc func(T, T) int) (dist map[T]int, prev map[T][]T) {
+	dist = make(map[T]int, g.NV())
+	prev = make(map[T][]T, g.NV())
 
 	pq := NewPQueue[T]()
 	for v := range g.adjList {
@@ -46,8 +45,8 @@ func (g *Graph[T]) dijkstra(source T) (dist map[T]int, prev map[T][]T) {
 	pq.AddWithRank(source, 0)
 	for pq.Len() > 0 {
 		u := pq.PopMin()
-		for _, v := range g.neighbors(u) {
-			d := dist[u] + g.distFunc(u, v)
+		for _, v := range g.Neighbors(u) {
+			d := dist[u] + distFunc(u, v)
 			// found shortest path yet, resetting prev
 			if d <= dist[v] {
 				if d < dist[v] {

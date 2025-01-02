@@ -3,7 +3,6 @@ package day21
 import "fmt"
 
 func Part1(input string) any {
-	fmt.Println("No solution yet for day 21, part 1")
 	return 0
 }
 
