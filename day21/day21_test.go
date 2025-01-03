@@ -1,8 +1,6 @@
 package day21
 
 import (
-	"math"
-	"slices"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -47,10 +45,11 @@ func TestCodeOneLevel(t *testing.T) {
 
 	expSeq := "<A^A>^^AvvvA"
 
-	seqs := processCode(code, numPad)
+	memo := make(map[string]string)
+	seq := processCode("A"+code, numPad, &memo)
 
-	if !slices.Contains(seqs, expSeq) {
-		t.Errorf("Couldn't find sequence in %v", seqs)
+	if len(seq) != len(expSeq) {
+		t.Errorf("Expected length %d, got %d", len(expSeq), len(seq))
 	}
 }
 
@@ -61,24 +60,18 @@ func TestCodeAllLevels(t *testing.T) {
 
 	expSeq := "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"
 
-	seqs := process(code, []Pad{numPad, arrowPad, arrowPad})
+	seq := process(code, []Pad{numPad, arrowPad, arrowPad})
 
-	if !slices.Contains(seqs, expSeq) {
-		t.Errorf("Couldn't find sequence in %v", seqs)
+	if len(seq) != len(expSeq) {
+		t.Errorf("Expected length %d, got %d", len(expSeq), len(seq))
 	}
+}
 
-	minL := math.MaxInt
-	maxL := 0
-	for _, s := range seqs {
-		if len(s) > maxL {
-			maxL = len(s)
-		}
-		if len(s) < minL {
-			minL = len(s)
-		}
-	}
-
-	if minL != len(expSeq) || maxL != len(expSeq) {
-		t.Errorf("Sequences don't all have the same length %d, %d", minL, maxL)
+func TestSplitCode(t *testing.T) {
+	code := "A290A"
+	left := code[:len(code)/2+1]
+	right := code[len(code)/2:]
+	if left != "A29" || right != "90A" {
+		t.Errorf("Wrong split: %s %s", left, right)
 	}
 }
