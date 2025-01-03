@@ -22,11 +22,12 @@ func getComplexity(input string, numRobots int) int {
 	arrowPad := getShortestPaths(arrowKeys)
 
 	var complexity int
+	memo := make(map[Mem]int)
 	for _, code := range strings.Split(input, "\n") {
 		seqs := getSeqs(code, numPad)
 		minL := math.MaxInt
 		for _, s := range seqs {
-			shortest := shortestSeq(s, numRobots, arrowPad)
+			shortest := shortestSeq(s, numRobots, arrowPad, &memo)
 			if shortest < minL {
 				minL = shortest
 			}
@@ -102,9 +103,13 @@ func buildSeq(code string, idx int, seq string, pad Pad, prev rune, result *[]st
 	}
 }
 
-func shortestSeq(seq string, depth int, pad Pad) int {
+func shortestSeq(seq string, depth int, pad Pad, memo *map[Mem]int) int {
 	if depth == 0 {
 		return len(seq)
+	}
+
+	if v, ok := (*memo)[Mem{seq, depth}]; ok {
+		return v
 	}
 
 	var total int
@@ -113,7 +118,7 @@ func shortestSeq(seq string, depth int, pad Pad) int {
 		seqs := getSeqs(sub, pad)
 		minL := math.MaxInt
 		for _, s := range seqs {
-			length := shortestSeq(s, depth-1, pad)
+			length := shortestSeq(s, depth-1, pad, memo)
 			if length < minL {
 				minL = length
 			}
@@ -122,46 +127,8 @@ func shortestSeq(seq string, depth int, pad Pad) int {
 		total += minL
 	}
 
+	(*memo)[Mem{seq, depth}] = total
 	return total
-}
-
-// func buildSeq(code string, pad Pad) (seqs []string) {
-// 	code = "A" + code
-// 	for i := 0; i < len(code)-1; i++ {
-// 		paths, ok := pad[Pair{rune(code[i]), rune(code[i+1])}]
-// 		if !ok {
-// 			fmt.Printf("Error, not in pad: %s, %s", string(code[i]), string(code[i+1]))
-// 		}
-//
-// 		newSeqs := make([]string, 0, len(paths)*len(seqs))
-// 		fmt.Println(seqs, paths)
-//
-// 		if len(seqs) == 0 {
-// 			seqs = append(seqs, paths...)
-// 			continue
-// 		}
-//
-// 		for j := 0; j < len(seqs); j++ {
-// 			for k := 0; k < len(paths); k++ {
-// 				newSeqs = append(newSeqs, seqs[j]+paths[k])
-// 			}
-// 		}
-//
-// 		seqs = newSeqs
-// 	}
-//
-// 	return seqs
-// }
-
-func concat(a []string, b []string) []string {
-	out := make([]string, 0, len(a)*len(b))
-	for j := 0; j < len(a); j++ {
-		for k := 0; k < len(b); k++ {
-			out = append(out, a[j]+b[k])
-		}
-	}
-
-	return out
 }
 
 var (
@@ -186,6 +153,11 @@ type Coord struct {
 type Dir struct {
 	symbol rune
 	coord  Coord
+}
+
+type Mem struct {
+	seq   string
+	depth int
 }
 
 type Pad map[Pair][]string
