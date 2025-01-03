@@ -2,20 +2,35 @@ package day21
 
 import (
 	"fmt"
+	"math"
+	"strconv"
+	"strings"
 
 	"github.com/bottino/aoc2024/graphs"
 )
 
 func Part1(input string) any {
-	// codes := strings.Split(input, "\n")
+	numPad := getShortestPaths(numKeys)
+	arrowPad := getShortestPaths(arrowKeys)
 
-	// numPad := getShortestPaths(numKeys)
+	var complexity int
+	for _, code := range strings.Split(input, "\n") {
+		seqs := process(code, []Pad{numPad, arrowPad, arrowPad})
+		minL := math.MaxInt
+		for _, s := range seqs {
+			if len(s) < minL {
+				minL = len(s)
+			}
+		}
+		numPart, err := strconv.Atoi(code[:3])
+		if err != nil {
+			fmt.Printf("Error when converting code %s", code)
+		}
 
-	// for _, code := range codes {
-	//
-	// }
+		complexity += numPart * minL
+	}
 
-	return 0
+	return complexity
 }
 
 func Part2(input string) any {
@@ -54,10 +69,6 @@ func getShortestPaths(keys map[Coord]rune) Pad {
 	for _, startNode := range numKp.Nodes() {
 		_, prev := numKp.Dijkstra(startNode, graphs.UnitDist)
 		for _, endNode := range numKp.Nodes() {
-			if startNode == endNode {
-				continue
-			}
-
 			pair := Pair{startNode, endNode}
 			paths := numKp.GetAllShortestPaths(endNode, prev)
 			for _, p := range paths {
@@ -69,16 +80,30 @@ func getShortestPaths(keys map[Coord]rune) Pad {
 	return shortestPaths
 }
 
+func process(code string, pads []Pad) (seqs []string) {
+	seqs = []string{code}
+	for _, pad := range pads {
+		// fmt.Println(seqs)
+		var newSeqs []string
+		for _, s := range seqs {
+			newSeqs = append(newSeqs, processCode(s, pad)...)
+		}
+
+		seqs = newSeqs
+	}
+
+	return seqs
+}
+
 func processCode(code string, pad Pad) (seqs []string) {
 	code = "A" + code
 	for i := 0; i < len(code)-1; i++ {
 		paths, ok := pad[Pair{rune(code[i]), rune(code[i+1])}]
 		if !ok {
-			panic("shouldn't error here")
+			fmt.Printf("Error, not in pad: %s, %s", string(code[i]), string(code[i+1]))
 		}
 
 		newSeqs := make([]string, 0, len(paths)*len(seqs))
-		fmt.Println(seqs, paths)
 
 		if len(seqs) == 0 {
 			seqs = append(seqs, paths...)
@@ -135,4 +160,12 @@ var numKeys = map[Coord]rune{
 	{2, 2}: '3',
 	{1, 3}: '0',
 	{2, 3}: 'A',
+}
+
+var arrowKeys = map[Coord]rune{
+	{1, 0}: '^',
+	{2, 0}: 'A',
+	{0, 1}: '<',
+	{1, 1}: 'v',
+	{2, 1}: '>',
 }
