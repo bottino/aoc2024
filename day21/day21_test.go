@@ -1,6 +1,7 @@
 package day21
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -14,7 +15,7 @@ func TestShortestPaths(t *testing.T) {
 		{1, 1}: '5',
 	}
 
-	expected := map[Pair][]string{
+	expected := Pad{
 		{'7', '8'}: {">A"},
 		{'8', '7'}: {"<A"},
 		{'4', '5'}: {">A"},
@@ -32,5 +33,18 @@ func TestShortestPaths(t *testing.T) {
 	paths := getShortestPaths(keys)
 	if diff := cmp.Diff(expected, paths); diff != "" {
 		t.Error(diff)
+	}
+}
+
+func TestCodeOneLevel(t *testing.T) {
+	numPad := getShortestPaths(numKeys)
+	code := "029A"
+
+	expSeq := "<A^A>^^AvvvA"
+
+	seqs := processCode(code, numPad)
+
+	if !slices.Contains(seqs, expSeq) {
+		t.Errorf("Couldn't find sequence in %v", seqs)
 	}
 }

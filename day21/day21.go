@@ -7,21 +7,15 @@ import (
 )
 
 func Part1(input string) any {
-	numKeys := map[Coord]rune{
-		{0, 0}: '7',
-		{1, 0}: '8',
-		{2, 0}: '9',
-		{0, 1}: '4',
-		{1, 1}: '5',
-		{2, 1}: '6',
-		{0, 2}: '1',
-		{1, 2}: '2',
-		{2, 2}: '3',
-		{1, 3}: '0',
-		{2, 3}: 'A',
-	}
+	// codes := strings.Split(input, "\n")
 
-	return getShortestPaths(numKeys)
+	// numPad := getShortestPaths(numKeys)
+
+	// for _, code := range codes {
+	//
+	// }
+
+	return 0
 }
 
 func Part2(input string) any {
@@ -43,7 +37,7 @@ func pathToString(path []rune, edges map[Pair]rune) string {
 	return out + "A"
 }
 
-func getShortestPaths(keys map[Coord]rune) map[Pair][]string {
+func getShortestPaths(keys map[Coord]rune) Pad {
 	numKp := graphs.New[rune]()
 	edges := make(map[Pair]rune)
 	for coord, key := range keys {
@@ -75,6 +69,34 @@ func getShortestPaths(keys map[Coord]rune) map[Pair][]string {
 	return shortestPaths
 }
 
+func processCode(code string, pad Pad) (seqs []string) {
+	code = "A" + code
+	for i := 0; i < len(code)-1; i++ {
+		paths, ok := pad[Pair{rune(code[i]), rune(code[i+1])}]
+		if !ok {
+			panic("shouldn't error here")
+		}
+
+		newSeqs := make([]string, 0, len(paths)*len(seqs))
+		fmt.Println(seqs, paths)
+
+		if len(seqs) == 0 {
+			seqs = append(seqs, paths...)
+			continue
+		}
+
+		for j := 0; j < len(seqs); j++ {
+			for k := 0; k < len(paths); k++ {
+				newSeqs = append(newSeqs, seqs[j]+paths[k])
+			}
+		}
+
+		seqs = newSeqs
+	}
+
+	return seqs
+}
+
 var (
 	left  = Dir{'<', Coord{-1, 0}}
 	right = Dir{'>', Coord{1, 0}}
@@ -97,4 +119,20 @@ type Coord struct {
 type Dir struct {
 	symbol rune
 	coord  Coord
+}
+
+type Pad map[Pair][]string
+
+var numKeys = map[Coord]rune{
+	{0, 0}: '7',
+	{1, 0}: '8',
+	{2, 0}: '9',
+	{0, 1}: '4',
+	{1, 1}: '5',
+	{2, 1}: '6',
+	{0, 2}: '1',
+	{1, 2}: '2',
+	{2, 2}: '3',
+	{1, 3}: '0',
+	{2, 3}: 'A',
 }
