@@ -2,6 +2,7 @@ package day21
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -9,43 +10,28 @@ import (
 )
 
 func Part1(input string) any {
-	return 0
-	// numPad := getShortestPaths(numKeys)
-	// arrowPad := getShortestPaths(arrowKeys)
-	//
-	// var complexity int
-	// for _, code := range strings.Split(input, "\n") {
-	// 	seqs := process(code, []Pad{numPad, arrowPad, arrowPad})
-	// 	minL := math.MaxInt
-	// 	for _, s := range seqs {
-	// 		if len(s) < minL {
-	// 			minL = len(s)
-	// 		}
-	// 	}
-	// 	numPart, err := strconv.Atoi(code[:3])
-	// 	if err != nil {
-	// 		fmt.Printf("Error when converting code %s", code)
-	// 	}
-	//
-	// 	complexity += numPart * minL
-	// }
-	//
-	// return complexity
+	return getComplexity(input, 2)
 }
 
 func Part2(input string) any {
+	return getComplexity(input, 25)
+}
+
+func getComplexity(input string, numRobots int) int {
 	numPad := getShortestPaths(numKeys)
 	arrowPad := getShortestPaths(arrowKeys)
 
-	pads := []Pad{numPad}
-	for i := 0; i < 25; i++ {
-		pads = append(pads, arrowPad)
-	}
-
 	var complexity int
 	for _, code := range strings.Split(input, "\n") {
-		seq := process(code, pads)
-		minL := len(seq)
+		seqs := getSeqs(code, numPad)
+		minL := math.MaxInt
+		for _, s := range seqs {
+			shortest := shortestSeq(s, numRobots, arrowPad)
+			if shortest < minL {
+				minL = shortest
+			}
+		}
+
 		numPart, err := strconv.Atoi(code[:3])
 		if err != nil {
 			fmt.Printf("Error when converting code %s", code)
@@ -99,39 +85,73 @@ func getShortestPaths(keys map[Coord]rune) Pad {
 	return shortestPaths
 }
 
-func process(code string, pads []Pad) (seq string) {
-	memo := make(map[string]string, 1_000_000)
-	seq = code
-	for i, pad := range pads {
-		fmt.Println(i)
-		seq = processCode("A"+seq, pad, &memo)
-	}
-
-	return seq
+func getSeqs(code string, pad Pad) (seqs []string) {
+	buildSeq(code, 0, "", pad, 'A', &seqs)
+	return seqs
 }
 
-func processCode(code string, pad Pad, memo *map[string]string) string {
-	if s, ok := (*memo)[code]; ok {
-		return s
+func buildSeq(code string, idx int, seq string, pad Pad, prev rune, result *[]string) {
+	if idx == len(code) {
+		(*result) = append(*result, seq)
+		return
 	}
-
-	if len(code) > 2 {
-		left := code[:len(code)/2+1]
-		right := code[len(code)/2:]
-		leftSeq := processCode(left, pad, memo)
-		rightSeq := processCode(right, pad, memo)
-		(*memo)[left] = leftSeq
-		(*memo)[right] = rightSeq
-		return leftSeq + rightSeq
+	curr := rune(code[idx])
+	paths := pad[Pair{prev, curr}]
+	for _, p := range paths {
+		buildSeq(code, idx+1, seq+p, pad, curr, result)
 	}
-
-	seqs, ok := pad[Pair{rune(code[0]), rune(code[1])}]
-	if !ok {
-		fmt.Printf("Error: couldn't read pair in pad {%s, %s}",
-			string(code[0]), string(code[1]))
-	}
-	return seqs[0]
 }
+
+func shortestSeq(seq string, depth int, pad Pad) int {
+	if depth == 0 {
+		return len(seq)
+	}
+
+	var total int
+	subSeqs := strings.SplitAfter(seq, "A")
+	for _, sub := range subSeqs {
+		seqs := getSeqs(sub, pad)
+		minL := math.MaxInt
+		for _, s := range seqs {
+			length := shortestSeq(s, depth-1, pad)
+			if length < minL {
+				minL = length
+			}
+		}
+
+		total += minL
+	}
+
+	return total
+}
+
+// func buildSeq(code string, pad Pad) (seqs []string) {
+// 	code = "A" + code
+// 	for i := 0; i < len(code)-1; i++ {
+// 		paths, ok := pad[Pair{rune(code[i]), rune(code[i+1])}]
+// 		if !ok {
+// 			fmt.Printf("Error, not in pad: %s, %s", string(code[i]), string(code[i+1]))
+// 		}
+//
+// 		newSeqs := make([]string, 0, len(paths)*len(seqs))
+// 		fmt.Println(seqs, paths)
+//
+// 		if len(seqs) == 0 {
+// 			seqs = append(seqs, paths...)
+// 			continue
+// 		}
+//
+// 		for j := 0; j < len(seqs); j++ {
+// 			for k := 0; k < len(paths); k++ {
+// 				newSeqs = append(newSeqs, seqs[j]+paths[k])
+// 			}
+// 		}
+//
+// 		seqs = newSeqs
+// 	}
+//
+// 	return seqs
+// }
 
 func concat(a []string, b []string) []string {
 	out := make([]string, 0, len(a)*len(b))

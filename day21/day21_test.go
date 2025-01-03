@@ -1,6 +1,7 @@
 package day21
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -39,31 +40,14 @@ func TestShortestPaths(t *testing.T) {
 	}
 }
 
-func TestCodeOneLevel(t *testing.T) {
+func TestBuildSec(t *testing.T) {
 	numPad := getShortestPaths(numKeys)
 	code := "029A"
 
 	expSeq := "<A^A>^^AvvvA"
-
-	memo := make(map[string]string)
-	seq := processCode("A"+code, numPad, &memo)
-
-	if len(seq) != len(expSeq) {
-		t.Errorf("Expected length %d, got %d", len(expSeq), len(seq))
-	}
-}
-
-func TestCodeAllLevels(t *testing.T) {
-	numPad := getShortestPaths(numKeys)
-	arrowPad := getShortestPaths(arrowKeys)
-	code := "029A"
-
-	expSeq := "<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A"
-
-	seq := process(code, []Pad{numPad, arrowPad, arrowPad})
-
-	if len(seq) != len(expSeq) {
-		t.Errorf("Expected length %d, got %d", len(expSeq), len(seq))
+	results := getSeqs(code, numPad)
+	if !slices.Contains(results, expSeq) {
+		t.Errorf("seq not in %v", results)
 	}
 }
 
