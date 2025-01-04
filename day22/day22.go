@@ -25,6 +25,21 @@ func Part2(input string) any {
 	return 0
 }
 
+func getDiff(init int, n int) (bananas []int, changes []int) {
+	secret := init
+	first := init % 10
+	bananas = append(bananas, first)
+	prev := first
+	for i := 1; i < n; i++ {
+		secret = getSecret(secret)
+		b := secret % 10
+		bananas = append(bananas, b)
+		changes = append(changes, b-prev)
+		prev = b
+	}
+	return bananas, changes
+}
+
 func getSecret(secret int) int {
 	x := secret * 64
 	secret = mix(secret, x)

@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestGetSecret(t *testing.T) {
@@ -25,5 +27,19 @@ func TestGetSecret(t *testing.T) {
 		if secret != exp {
 			t.Errorf("Round %d: exp %d, got %d", i+1, exp, secret)
 		}
+	}
+}
+
+func TestSequences(t *testing.T) {
+	expBananas := []int{3, 0, 6, 5, 4, 4, 6, 4, 4, 2}
+	expChanges := []int{-3, 6, -1, -1, 0, 2, -2, 0, -2}
+
+	bananas, changes := getDiff(123, 10)
+
+	if diff := cmp.Diff(expBananas, bananas); diff != "" {
+		t.Errorf("Bananas mismatch: %s", diff)
+	}
+	if diff := cmp.Diff(expChanges, changes); diff != "" {
+		t.Errorf("Changes mismatch: %s", diff)
 	}
 }
