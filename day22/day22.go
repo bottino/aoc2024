@@ -1,7 +1,6 @@
 package day22
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -21,8 +20,27 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 22, part 2")
-	return 0
+	bananasMap := make(map[seq]int, 4*(2001-4)) // worst case
+	for _, secStr := range strings.Split(input, "\n") {
+		secret, _ := strconv.Atoi(secStr)
+		seqs := getSequences(secret, 2001)
+		for k, v := range seqs {
+			if _, ok := bananasMap[k]; ok {
+				bananasMap[k] += v
+			} else {
+				bananasMap[k] = v
+			}
+		}
+	}
+
+	var maxBananas int
+	for _, v := range bananasMap {
+		if v > maxBananas {
+			maxBananas = v
+		}
+	}
+
+	return maxBananas
 }
 
 type seq [4]int
