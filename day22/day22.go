@@ -25,6 +25,23 @@ func Part2(input string) any {
 	return 0
 }
 
+type seq [4]int
+
+func getSequences(init int, n int) map[seq]int {
+	bananas, changes := getDiff(init, n)
+	sequences := make(map[seq]int, len(changes)-4)
+	// start from the end, because only the FIRST sequence counts
+	for i := len(changes) - 1; i >= 3; i-- {
+		s := seq{}
+		for j := 0; j < 4; j++ {
+			s[j] = changes[i-3+j]
+		}
+		sequences[s] = bananas[i+1]
+	}
+
+	return sequences
+}
+
 func getDiff(init int, n int) (bananas []int, changes []int) {
 	secret := init
 	first := init % 10

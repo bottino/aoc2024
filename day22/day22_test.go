@@ -30,7 +30,7 @@ func TestGetSecret(t *testing.T) {
 	}
 }
 
-func TestSequences(t *testing.T) {
+func TestDiff(t *testing.T) {
 	expBananas := []int{3, 0, 6, 5, 4, 4, 6, 4, 4, 2}
 	expChanges := []int{-3, 6, -1, -1, 0, 2, -2, 0, -2}
 
@@ -41,5 +41,22 @@ func TestSequences(t *testing.T) {
 	}
 	if diff := cmp.Diff(expChanges, changes); diff != "" {
 		t.Errorf("Changes mismatch: %s", diff)
+	}
+}
+
+func TestSequences(t *testing.T) {
+	expSeq := map[seq]int{
+		{-3, 6, -1, -1}: 4,
+		{6, -1, -1, 0}:  4,
+		{-1, -1, 0, 2}:  6,
+		{-1, 0, 2, -2}:  4,
+		{0, 2, -2, 0}:   4,
+		{2, -2, 0, -2}:  2,
+	}
+
+	seqs := getSequences(123, 10)
+
+	if diff := cmp.Diff(expSeq, seqs); diff != "" {
+		t.Errorf("Sequences mismatch: %s", diff)
 	}
 }
