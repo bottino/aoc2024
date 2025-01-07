@@ -3,13 +3,15 @@ package day10
 import (
 	"strconv"
 	"strings"
+
+	"github.com/bottino/aoc2024/vec"
 )
 
 func Part1(input string) any {
 	emap, trailheads := readElevations(input)
 	var numTrails int
 	for _, th := range trailheads {
-		summits := make(map[Coord]bool)
+		summits := make(map[vec.Coord]bool)
 		elev := emap[th]
 		getSummits(th, elev, emap, &summits)
 		numTrails += len(summits)
@@ -28,13 +30,9 @@ func Part2(input string) any {
 	return numTrails
 }
 
-type Coord struct {
-	X, Y int
-}
+type ElevMap map[vec.Coord]int
 
-type ElevMap map[Coord]int
-
-func getNumTrails(c Coord, elev int, emap ElevMap) (numTrails int) {
+func getNumTrails(c vec.Coord, elev int, emap ElevMap) (numTrails int) {
 	if elev == 9 {
 		return 1
 	}
@@ -47,7 +45,7 @@ func getNumTrails(c Coord, elev int, emap ElevMap) (numTrails int) {
 	return numTrails
 }
 
-func getSummits(c Coord, elev int, emap ElevMap, summits *map[Coord]bool) {
+func getSummits(c vec.Coord, elev int, emap ElevMap, summits *map[vec.Coord]bool) {
 	if elev == 9 {
 		(*summits)[c] = true
 	}
@@ -60,9 +58,9 @@ func getSummits(c Coord, elev int, emap ElevMap, summits *map[Coord]bool) {
 	return
 }
 
-func getNeighboringPaths(c Coord, elev int, emap ElevMap) (neighbors []Coord) {
-	for _, d := range []Coord{{0, 1}, {1, 0}, {-1, 0}, {0, -1}} {
-		nCoord := Coord{c.X + d.X, c.Y + d.Y}
+func getNeighboringPaths(c vec.Coord, elev int, emap ElevMap) (neighbors []vec.Coord) {
+	for _, d := range vec.AllDirections() {
+		nCoord := c.Add(d)
 		if nElev, ok := emap[nCoord]; ok && nElev == elev+1 {
 			neighbors = append(neighbors, nCoord)
 		}
@@ -71,9 +69,9 @@ func getNeighboringPaths(c Coord, elev int, emap ElevMap) (neighbors []Coord) {
 	return neighbors
 }
 
-func readElevations(input string) (ElevMap, []Coord) {
+func readElevations(input string) (ElevMap, []vec.Coord) {
 	emap := make(ElevMap, len(input))
-	var trailheads []Coord
+	var trailheads []vec.Coord
 	for i, line := range strings.Split(input, "\n") {
 		for j, char := range line {
 			elev, err := strconv.Atoi(string(char))
@@ -81,7 +79,7 @@ func readElevations(input string) (ElevMap, []Coord) {
 				panic("Cannot convert to int")
 			}
 
-			coord := Coord{i, j}
+			coord := vec.Coord{X: i, Y: j}
 			emap[coord] = elev
 			if elev == 0 {
 				trailheads = append(trailheads, coord)

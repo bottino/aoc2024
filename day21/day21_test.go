@@ -4,15 +4,16 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/bottino/aoc2024/vec"
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestShortestPaths(t *testing.T) {
-	keys := map[Coord]rune{
-		{0, 0}: '7',
-		{1, 0}: '8',
-		{0, 1}: '4',
-		{1, 1}: '5',
+	keys := map[vec.Coord]rune{
+		{X: 0, Y: 0}: '7',
+		{X: 0, Y: 1}: '8',
+		{X: 1, Y: 0}: '4',
+		{X: 1, Y: 1}: '5',
 	}
 
 	expected := Pad{

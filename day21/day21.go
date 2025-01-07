@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bottino/aoc2024/graphs"
+	"github.com/bottino/aoc2024/vec"
 )
 
 func Part1(input string) any {
@@ -58,7 +59,7 @@ func pathToString(path []rune, edges map[Pair]rune) string {
 	return out + "A"
 }
 
-func getShortestPaths(keys map[Coord]rune) Pad {
+func getShortestPaths(keys map[vec.Coord]rune) Pad {
 	numKp := graphs.New[rune]()
 	edges := make(map[Pair]rune)
 	for coord, key := range keys {
@@ -132,27 +133,19 @@ func shortestSeq(seq string, depth int, pad Pad, memo *map[Mem]int) int {
 }
 
 var (
-	left  = Dir{'<', Coord{-1, 0}}
-	right = Dir{'>', Coord{1, 0}}
-	up    = Dir{'^', Coord{0, -1}}
-	down  = Dir{'v', Coord{0, 1}}
+	left  = Dir{'<', vec.Left}
+	right = Dir{'>', vec.Right}
+	up    = Dir{'^', vec.Up}
+	down  = Dir{'v', vec.Down}
 )
-
-func (lhs *Coord) Add(rhs Coord) Coord {
-	return Coord{lhs.x + rhs.x, lhs.y + rhs.y}
-}
 
 type Pair struct {
 	a, b rune
 }
 
-type Coord struct {
-	x, y int
-}
-
 type Dir struct {
 	symbol rune
-	coord  Coord
+	coord  vec.Coord
 }
 
 type Mem struct {
@@ -162,24 +155,24 @@ type Mem struct {
 
 type Pad map[Pair][]string
 
-var numKeys = map[Coord]rune{
+var numKeys = map[vec.Coord]rune{
 	{0, 0}: '7',
-	{1, 0}: '8',
-	{2, 0}: '9',
-	{0, 1}: '4',
+	{0, 1}: '8',
+	{0, 2}: '9',
+	{1, 0}: '4',
 	{1, 1}: '5',
-	{2, 1}: '6',
-	{0, 2}: '1',
-	{1, 2}: '2',
+	{1, 2}: '6',
+	{2, 0}: '1',
+	{2, 1}: '2',
 	{2, 2}: '3',
-	{1, 3}: '0',
-	{2, 3}: 'A',
+	{3, 1}: '0',
+	{3, 2}: 'A',
 }
 
-var arrowKeys = map[Coord]rune{
-	{1, 0}: '^',
-	{2, 0}: 'A',
-	{0, 1}: '<',
+var arrowKeys = map[vec.Coord]rune{
+	{0, 1}: '^',
+	{0, 2}: 'A',
+	{1, 0}: '<',
 	{1, 1}: 'v',
-	{2, 1}: '>',
+	{1, 2}: '>',
 }

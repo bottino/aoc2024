@@ -3,6 +3,8 @@ package day12
 import (
 	"maps"
 	"strings"
+
+	"github.com/bottino/aoc2024/vec"
 )
 
 func Part1(input string) any {
@@ -34,7 +36,7 @@ func processRegions(input string) []Region {
 		lot := getFirstLot(lots)
 		region := Region{
 			id:    regionId,
-			lots:  make(map[Coord]bool),
+			lots:  make(map[vec.Coord]bool),
 			sides: make(map[Side]bool),
 		}
 		exploreRegion(lot, &region, garden)
@@ -58,41 +60,27 @@ func processRegions(input string) []Region {
 	return regions
 }
 
-var (
-	up    = Coord{-1, 0}
-	down  = Coord{1, 0}
-	left  = Coord{0, -1}
-	right = Coord{0, 1}
-)
-
 func FindAdjSide(side Side) Side {
 	dir := side.dir
 	lot := side.lot
 	switch dir {
-	case up:
-		return Side{up, lot.Add(right)}
-	case right:
-		return Side{right, lot.Add(down)}
-	case down:
-		return Side{down, lot.Add(left)}
-	case left:
-		return Side{left, lot.Add(up)}
+	case vec.Up:
+		return Side{vec.Up, lot.Add(vec.Right)}
+	case vec.Right:
+		return Side{vec.Right, lot.Add(vec.Down)}
+	case vec.Down:
+		return Side{vec.Down, lot.Add(vec.Left)}
+	case vec.Left:
+		return Side{vec.Left, lot.Add(vec.Up)}
 	default:
 		panic("went wrong")
 	}
 }
 
-func (lhs *Coord) Add(rhs Coord) Coord {
-	return Coord{lhs.x + rhs.x, lhs.y + rhs.y}
-}
-
-func addSides(side Side, region *Region) {
-}
-
-func exploreRegion(lot Coord, region *Region, garden Garden) {
+func exploreRegion(lot vec.Coord, region *Region, garden Garden) {
 	region.area++
 	region.lots[lot] = true
-	for _, d := range []Coord{up, down, left, right} {
+	for _, d := range vec.AllDirections() {
 		nCoord := lot.Add(d)
 		nPlant, ok := garden[nCoord]
 		side := Side{d, lot}
@@ -117,20 +105,16 @@ func exploreRegion(lot Coord, region *Region, garden Garden) {
 	return
 }
 
-func getFirstLot(garden Garden) Coord {
+func getFirstLot(garden Garden) vec.Coord {
 	for k := range garden {
 		return k
 	}
-	return Coord{0, 0}
-}
-
-type Coord struct {
-	x, y int
+	return vec.Coord{X: 0, Y: 0}
 }
 
 type Side struct {
-	dir Coord
-	lot Coord
+	dir vec.Coord
+	lot vec.Coord
 }
 
 type Region struct {
@@ -138,17 +122,17 @@ type Region struct {
 	area      int
 	perimeter int
 	numSides  int
-	lots      map[Coord]bool
+	lots      map[vec.Coord]bool
 	sides     map[Side]bool
 }
 
-type Garden map[Coord]rune
+type Garden map[vec.Coord]rune
 
 func readGarden(input string) (garden Garden) {
 	garden = make(Garden, len(input))
 	for i, line := range strings.Split(input, "\n") {
 		for j, char := range line {
-			garden[Coord{i, j}] = char
+			garden[vec.Coord{X: i, Y: j}] = char
 		}
 	}
 
