@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bottino/aoc2024/graphs"
+	"github.com/bottino/aoc2024/dsa"
 	"github.com/bottino/aoc2024/vec"
 )
 
@@ -60,7 +60,7 @@ func pathToString(path []rune, edges map[Pair]rune) string {
 }
 
 func getShortestPaths(keys map[vec.Coord]rune) Pad {
-	numKp := graphs.New[rune]()
+	numKp := dsa.NewGraph[rune]()
 	edges := make(map[Pair]rune)
 	for coord, key := range keys {
 		for _, dir := range []Dir{left, right, up, down} {
@@ -74,7 +74,7 @@ func getShortestPaths(keys map[vec.Coord]rune) Pad {
 
 	shortestPaths := make(map[Pair][]string)
 	for _, startNode := range numKp.Nodes() {
-		_, prev := numKp.Dijkstra(startNode, graphs.UnitDist)
+		_, prev := numKp.Dijkstra(startNode, dsa.UnitDist)
 		for _, endNode := range numKp.Nodes() {
 			pair := Pair{startNode, endNode}
 			paths := numKp.GetAllShortestPaths(endNode, prev)

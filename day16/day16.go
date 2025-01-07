@@ -4,7 +4,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bottino/aoc2024/graphs"
+	"github.com/bottino/aoc2024/dsa"
 	"github.com/bottino/aoc2024/vec"
 )
 
@@ -63,9 +63,9 @@ func getSeats(endNode Node, prev map[Node][]Node) map[vec.Coord]bool {
 	return seats
 }
 
-func buildMaze(input string) (maze graphs.Graph[Node], start vec.Coord, end vec.Coord) {
+func buildMaze(input string) (maze dsa.Graph[Node], start vec.Coord, end vec.Coord) {
 	tiles, start, end := readMaze(input)
-	maze = graphs.New[Node]()
+	maze = dsa.NewGraph[Node]()
 	for tile := range tiles {
 		for _, nDir := range vec.AllDirections() {
 			nTile := tile.Add(nDir)

@@ -1,4 +1,4 @@
-package graphs
+package dsa
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ func TestNodes(t *testing.T) {
 	less := func(a string, b string) bool {
 		return a < b
 	}
-	g := New[string]()
+	g := NewGraph[string]()
 	g.AddEdge("a", "b")
 	g.AddEdge("b", "f")
 
@@ -30,7 +30,7 @@ func TestNodes(t *testing.T) {
 }
 
 func TestDijkstra(t *testing.T) {
-	g := New[string]()
+	g := NewGraph[string]()
 	g.AddEdge("a", "b")
 	g.AddEdge("a", "c")
 	g.AddEdge("b", "f")
@@ -48,7 +48,7 @@ func TestDijkstra(t *testing.T) {
 }
 
 func TestShortestPaths(t *testing.T) {
-	g := New[string]()
+	g := NewGraph[string]()
 	g.AddEdge("a", "b")
 	g.AddEdge("a", "c")
 	g.AddEdge("b", "f")

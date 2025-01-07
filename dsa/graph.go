@@ -1,4 +1,4 @@
-package graphs
+package dsa
 
 import (
 	"math"
@@ -62,7 +62,7 @@ func (g *Graph[T]) Nodes() []T {
 	return nodes
 }
 
-func New[T comparable]() Graph[T] {
+func NewGraph[T comparable]() Graph[T] {
 	return Graph[T]{make(map[T][]T), nil, nil, nil}
 }
 

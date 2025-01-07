@@ -5,7 +5,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bottino/aoc2024/graphs"
+	"github.com/bottino/aoc2024/dsa"
 )
 
 func Part1(input string) any {
@@ -34,8 +34,8 @@ func Part2(input string) any {
 	return 0
 }
 
-func buildGraph(input string) graphs.Graph[string] {
-	g := graphs.New[string]()
+func buildGraph(input string) dsa.Graph[string] {
+	g := dsa.NewGraph[string]()
 	for _, line := range strings.Split(input, "\n") {
 		computers := strings.Split(line, "-")
 		g.AddUndirectedEdge(computers[0], computers[1])

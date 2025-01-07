@@ -1,4 +1,4 @@
-package graphs
+package dsa
 
 import (
 	"fmt"
