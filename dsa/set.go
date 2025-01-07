@@ -26,6 +26,10 @@ func (s *Set[T]) Remove(v T) {
 	}
 }
 
+func (s *Set[T]) Empty() bool {
+	return len(*s) == 0
+}
+
 func (a Set[T]) Equal(b Set[T]) bool {
 	if len(a) != len(b) {
 		return false

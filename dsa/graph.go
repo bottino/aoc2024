@@ -134,3 +134,30 @@ func (g *Graph[T]) recurseCycle(v T, u T, depth int) {
 		}
 	}
 }
+
+// Gets all maximal cliques in the graph using a naive Bron-Kerbosh algo
+// https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
+func (g *Graph[T]) GetCliques() []Set[T] {
+	var cliques []Set[T]
+	g.bronKerbosh(NewSet[T](), g.Nodes(), NewSet[T](), &cliques)
+	return cliques
+}
+
+func (g *Graph[T]) bronKerbosh(R Set[T], P Set[T], X Set[T], cliques *[]Set[T]) {
+	if P.Empty() && X.Empty() {
+		if len(R) > 2 {
+			*cliques = append(*cliques, R)
+		}
+		return
+	}
+	for v := range P {
+		g.bronKerbosh(
+			R.Union(NewSet(v)),
+			P.Intersection(g.neighbors(v)),
+			X.Intersection(g.neighbors(v)),
+			cliques,
+		)
+		P.Remove(v)
+		X.Add(v)
+	}
+}

@@ -1,7 +1,6 @@
 package day23
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
@@ -30,8 +29,24 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 23, part 2")
-	return 0
+	g := buildGraph(input)
+	cliques := g.GetCliques()
+	var maxClique dsa.Set[string]
+	var maxCliqueLen int
+	for _, c := range cliques {
+		if len(c) > maxCliqueLen {
+			maxCliqueLen = len(c)
+			maxClique = c
+		}
+	}
+
+	var password []string
+	for k := range maxClique {
+		password = append(password, k)
+	}
+	slices.Sort(password)
+
+	return strings.Join(password, ",")
 }
 
 func buildGraph(input string) dsa.Graph[string] {
