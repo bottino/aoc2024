@@ -6,8 +6,8 @@ import (
 
 // Graph with integer distance metric
 type Graph[T comparable] struct {
-	adjList map[T][]T
-	nodes   []T
+	adjList map[T]Set[T]
+	nodes   Set[T]
 	marked  map[T]bool
 	cycles  [][]T
 }
@@ -16,20 +16,21 @@ func UnitDist[T comparable](u T, v T) int {
 	return 1
 }
 
-func (g *Graph[T]) neighbors(node T) []T {
+func (g *Graph[T]) neighbors(node T) Set[T] {
 	n, ok := g.adjList[node]
 	if ok {
 		return n
 	}
-	return []T{}
+	return NewSet[T]()
 }
 
 func (g *Graph[T]) AddEdge(u T, v T) {
 	adjs, ok := g.adjList[u]
 	if ok {
-		g.adjList[u] = append(adjs, v) // ignore duplicate edges
+		adjs.Add(v)
+		g.adjList[u] = adjs // ignore duplicate edges
 	} else {
-		g.adjList[u] = []T{v}
+		g.adjList[u] = NewSet(v)
 	}
 
 	g.nodes = nil // reset node caching so they get recalculated
@@ -40,30 +41,25 @@ func (g *Graph[T]) AddUndirectedEdge(u T, v T) {
 	g.AddEdge(v, u)
 }
 
-func (g *Graph[T]) Nodes() []T {
+func (g *Graph[T]) Nodes() Set[T] {
 	if g.nodes != nil {
 		return g.nodes
 	}
 
-	nodeMap := make(map[T]bool)
+	nodeSet := NewSet[T]()
 	for k, v := range g.adjList {
-		nodeMap[k] = true
-		for _, n := range v {
-			nodeMap[n] = true
+		nodeSet.Add(k)
+		for n := range v {
+			nodeSet.Add(n)
 		}
 	}
 
-	var nodes []T
-	for k := range nodeMap {
-		nodes = append(nodes, k)
-	}
-
-	g.nodes = nodes
-	return nodes
+	g.nodes = nodeSet
+	return nodeSet
 }
 
 func NewGraph[T comparable]() Graph[T] {
-	return Graph[T]{make(map[T][]T), nil, nil, nil}
+	return Graph[T]{make(map[T]Set[T]), nil, nil, nil}
 }
 
 func (g *Graph[T]) Dijkstra(source T, distFunc func(T, T) int) (dist map[T]int, prev map[T][]T) {
@@ -71,7 +67,7 @@ func (g *Graph[T]) Dijkstra(source T, distFunc func(T, T) int) (dist map[T]int, 
 	prev = make(map[T][]T, len(g.Nodes()))
 
 	pq := NewPQueue[T]()
-	for _, n := range g.Nodes() {
+	for n := range g.Nodes() {
 		dist[n] = math.MaxInt
 	}
 
@@ -79,7 +75,7 @@ func (g *Graph[T]) Dijkstra(source T, distFunc func(T, T) int) (dist map[T]int, 
 	pq.AddWithRank(source, 0)
 	for pq.Len() > 0 {
 		u := pq.PopMin()
-		for _, v := range g.neighbors(u) {
+		for v := range g.neighbors(u) {
 			d := dist[u] + distFunc(u, v)
 			// found shortest path yet, resetting prev
 			if d <= dist[v] {
@@ -117,7 +113,7 @@ func (_ *Graph[T]) GetAllShortestPaths(end T, prev map[T][]T) [][]T {
 
 func (g *Graph[T]) FindAllCycles() [][]T {
 	g.cycles = nil
-	for _, s := range g.Nodes() {
+	for s := range g.Nodes() {
 		g.marked = make(map[T]bool, len(g.Nodes()))
 		g.recurseCycle(s, s, 0)
 	}
@@ -130,7 +126,7 @@ func (g *Graph[T]) recurseCycle(v T, u T, depth int) {
 		return
 	}
 	g.marked[v] = true
-	for _, w := range g.neighbors(v) {
+	for w := range g.neighbors(v) {
 		if !g.marked[w] {
 			g.recurseCycle(w, v, depth+1)
 		} else if w != u {

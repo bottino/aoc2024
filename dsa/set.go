@@ -6,13 +6,9 @@ import (
 	"strings"
 )
 
-type comparableStringer interface {
-	comparable
-	~int | ~rune | ~string
-}
-type Set[T comparableStringer] map[T]struct{}
+type Set[T comparable] map[T]struct{}
 
-func NewSet[T comparableStringer](values ...T) Set[T] {
+func NewSet[T comparable](values ...T) Set[T] {
 	s := make(Set[T], len(values))
 	for _, v := range values {
 		s.Add(v)

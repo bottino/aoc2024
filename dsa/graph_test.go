@@ -16,7 +16,7 @@ func TestNodes(t *testing.T) {
 	g.AddEdge("b", "f")
 
 	nodes := g.Nodes()
-	if diff := cmp.Diff([]string{"a", "b", "f"}, nodes, cmpopts.SortSlices(less)); diff != "" {
+	if diff := cmp.Diff(NewSet("a", "b", "f"), nodes, cmpopts.SortSlices(less)); diff != "" {
 		t.Error(diff)
 	}
 
@@ -24,7 +24,7 @@ func TestNodes(t *testing.T) {
 	g.AddEdge("c", "f")
 
 	nodes = g.Nodes()
-	if diff := cmp.Diff([]string{"a", "b", "c", "f"}, nodes, cmpopts.SortSlices(less)); diff != "" {
+	if diff := cmp.Diff(NewSet("a", "b", "c", "f"), nodes, cmpopts.SortSlices(less)); diff != "" {
 		t.Error(diff)
 	}
 }

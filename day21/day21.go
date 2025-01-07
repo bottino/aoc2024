@@ -73,9 +73,9 @@ func getShortestPaths(keys map[vec.Coord]rune) Pad {
 	}
 
 	shortestPaths := make(map[Pair][]string)
-	for _, startNode := range numKp.Nodes() {
+	for startNode := range numKp.Nodes() {
 		_, prev := numKp.Dijkstra(startNode, dsa.UnitDist)
-		for _, endNode := range numKp.Nodes() {
+		for endNode := range numKp.Nodes() {
 			pair := Pair{startNode, endNode}
 			paths := numKp.GetAllShortestPaths(endNode, prev)
 			for _, p := range paths {

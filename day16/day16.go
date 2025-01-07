@@ -108,12 +108,12 @@ func readMaze(input string) (tiles map[vec.Coord]bool, start vec.Coord, end vec.
 				continue
 			case '.':
 			case 'S':
-				start = vec.Coord{i, j}
+				start = vec.Coord{X: i, Y: j}
 			case 'E':
-				end = vec.Coord{i, j}
+				end = vec.Coord{X: i, Y: j}
 			}
 
-			tiles[vec.Coord{i, j}] = true
+			tiles[vec.Coord{X: i, Y: j}] = true
 		}
 	}
 
