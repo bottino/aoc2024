@@ -6,8 +6,10 @@ import (
 
 // Graph with integer distance metric
 type Graph[T comparable] struct {
-	AdjList map[T][]T
+	adjList map[T][]T
 	nodes   []T
+	marked  map[T]bool
+	cycles  [][]T
 }
 
 func UnitDist[T comparable](u T, v T) int {
@@ -15,7 +17,7 @@ func UnitDist[T comparable](u T, v T) int {
 }
 
 func (g *Graph[T]) neighbors(node T) []T {
-	n, ok := g.AdjList[node]
+	n, ok := g.adjList[node]
 	if ok {
 		return n
 	}
@@ -23,14 +25,19 @@ func (g *Graph[T]) neighbors(node T) []T {
 }
 
 func (g *Graph[T]) AddEdge(u T, v T) {
-	adjs, ok := g.AdjList[u]
+	adjs, ok := g.adjList[u]
 	if ok {
-		g.AdjList[u] = append(adjs, v) // ignore duplicate edges
+		g.adjList[u] = append(adjs, v) // ignore duplicate edges
 	} else {
-		g.AdjList[u] = []T{v}
+		g.adjList[u] = []T{v}
 	}
 
 	g.nodes = nil // reset node caching so they get recalculated
+}
+
+func (g *Graph[T]) AddUndirectedEdge(u T, v T) {
+	g.AddEdge(u, v)
+	g.AddEdge(v, u)
 }
 
 func (g *Graph[T]) Nodes() []T {
@@ -39,7 +46,7 @@ func (g *Graph[T]) Nodes() []T {
 	}
 
 	nodeMap := make(map[T]bool)
-	for k, v := range g.AdjList {
+	for k, v := range g.adjList {
 		nodeMap[k] = true
 		for _, n := range v {
 			nodeMap[n] = true
@@ -56,7 +63,7 @@ func (g *Graph[T]) Nodes() []T {
 }
 
 func New[T comparable]() Graph[T] {
-	return Graph[T]{make(map[T][]T), nil}
+	return Graph[T]{make(map[T][]T), nil, nil, nil}
 }
 
 func (g *Graph[T]) Dijkstra(source T, distFunc func(T, T) int) (dist map[T]int, prev map[T][]T) {
@@ -106,4 +113,28 @@ func (_ *Graph[T]) GetAllShortestPaths(end T, prev map[T][]T) [][]T {
 	curr := []T{end}
 	buildPaths(curr, prev, &paths)
 	return paths
+}
+
+func (g *Graph[T]) FindAllCycles() [][]T {
+	g.cycles = nil
+	for _, s := range g.Nodes() {
+		g.marked = make(map[T]bool, len(g.Nodes()))
+		g.recurseCycle(s, s, 0)
+	}
+
+	return g.cycles
+}
+
+func (g *Graph[T]) recurseCycle(v T, u T, depth int) {
+	if depth == 2 {
+		return
+	}
+	g.marked[v] = true
+	for _, w := range g.neighbors(v) {
+		if !g.marked[w] {
+			g.recurseCycle(w, v, depth+1)
+		} else if w != u {
+			g.cycles = append(g.cycles, []T{u, v, w})
+		}
+	}
 }
