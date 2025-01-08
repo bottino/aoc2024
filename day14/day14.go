@@ -2,16 +2,19 @@ package day14
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bottino/aoc2024/vec"
 )
 
 func Part1(input string) any {
 	robots := readRobots(input, 103, 101)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 98; i++ {
 		for _, r := range robots {
 			r.Move()
 		}
@@ -29,12 +32,33 @@ func Part1(input string) any {
 		safetyFactor *= v
 	}
 
+	displayMap(103, 101, robots)
 	return safetyFactor
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 14, part 2")
+	N, M := 103, 101
+	robots := readRobots(input, N, M)
+
+	maxN := 1000
+	for i := 0; i < maxN; i++ {
+		for _, r := range robots {
+			r.Move()
+		}
+
+		displayWithPause(N, M, i, robots)
+	}
+
 	return 0
+}
+
+func displayWithPause(N, M, i int, robots []*Robot) {
+	fmt.Println(displayMap(N, M, robots))
+	fmt.Printf("Time elapsed: %d s\n\n", i+1)
+	time.Sleep(100 * time.Millisecond)
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 type Robot struct {
@@ -73,6 +97,27 @@ func (r *Robot) Quadrant() int {
 	default:
 		return -1
 	}
+}
+
+func displayMap(N, M int, robots []*Robot) string {
+	robMap := make(map[vec.Coord]int, len(robots))
+	for _, r := range robots {
+		robMap[r.Pos] += 1
+	}
+
+	var sb strings.Builder
+	for i := 0; i < N; i++ {
+		for j := 0; j < M; j++ {
+			if v, ok := robMap[vec.Coord{i, j}]; ok {
+				sb.WriteString(fmt.Sprintf("%d", v))
+			} else {
+				sb.WriteRune('.')
+			}
+		}
+		sb.WriteRune('\n')
+	}
+
+	return sb.String()
 }
 
 func readRobots(input string, N, M int) (robots []*Robot) {
