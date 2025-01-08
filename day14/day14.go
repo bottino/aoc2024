@@ -14,7 +14,7 @@ import (
 
 func Part1(input string) any {
 	robots := readRobots(input, 103, 101)
-	for i := 0; i < 98; i++ {
+	for i := 0; i < 156; i++ {
 		for _, r := range robots {
 			r.Move()
 		}
@@ -32,7 +32,7 @@ func Part1(input string) any {
 		safetyFactor *= v
 	}
 
-	displayMap(103, 101, robots)
+	fmt.Println(displayMap(103, 101, robots))
 	return safetyFactor
 }
 
@@ -40,22 +40,44 @@ func Part2(input string) any {
 	N, M := 103, 101
 	robots := readRobots(input, N, M)
 
-	maxN := 1000
+	maxN := 1_000_000_000
+	middle := N / 2
+	var maxMiddle int
+	var maxes []int
 	for i := 0; i < maxN; i++ {
+		var middleCount int
 		for _, r := range robots {
 			r.Move()
+			if vec.AbsInt(r.Pos.X-middle) <= 10 {
+				middleCount++
+			}
 		}
 
-		displayWithPause(N, M, i, robots)
+		if middleCount >= maxMiddle {
+			maxMiddle = middleCount
+			maxes = append(maxes, i+1)
+
+		}
+
+		// I noticed a pattern where most of the robots are in the
+		// middle at this frequency (by looking at maxes)
+		// I then just stopped when I saw the tree, at 7572
+
+		// In retrospect, I figured that there was a vertical pattern
+		// at 98 + n*101, and a horizontal pattern at 52 + m*103, so
+		// the first integer that satifies both conditions is 7572
+		if i%103 == 52 {
+			displayWithPause(N, M, i, robots)
+		}
 	}
 
-	return 0
+	return maxes
 }
 
 func displayWithPause(N, M, i int, robots []*Robot) {
 	fmt.Println(displayMap(N, M, robots))
 	fmt.Printf("Time elapsed: %d s\n\n", i+1)
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()

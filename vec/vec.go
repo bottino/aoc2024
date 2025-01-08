@@ -21,7 +21,7 @@ func (lhs *Coord) Add(rhs Coord) Coord {
 }
 
 func ManhattanDist(u Coord, v Coord) int {
-	return absInt(u.X-v.X) + absInt(u.Y-v.Y)
+	return AbsInt(u.X-v.X) + AbsInt(u.Y-v.Y)
 }
 
 func AllDirections() []Coord {
@@ -32,7 +32,7 @@ func (a *Coord) Dot(b Coord) int {
 	return a.X*b.X + a.Y*b.Y
 }
 
-func absInt(x int) int {
+func AbsInt(x int) int {
 	if x > 0 {
 		return x
 	} else {
