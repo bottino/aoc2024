@@ -2,10 +2,20 @@ package day15
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/bottino/aoc2024/vec"
 )
+
+func Part2(input string) any {
+	sys := readInputPart2(input)
+	sys.run()
+	fmt.Println(sys.print())
+	return sys.getCoordinates()
+}
 
 type System2 struct {
 	robot        vec.Coord
@@ -18,6 +28,24 @@ type System2 struct {
 
 type Box struct {
 	left, right vec.Coord
+}
+
+func (s *System2) run() {
+	for s.numSteps < len(s.instructions) {
+		s.step()
+	}
+}
+
+func (s *System2) getCoordinates() int {
+	var coordinates int
+	for _, b := range s.boxes {
+		minX := min(b.left.X, b.right.X)
+		minY := min(b.left.Y, b.right.Y)
+		coordinates += 100*minX + minY
+	}
+
+	// the boxes all appear twice in the map
+	return coordinates / 2
 }
 
 func (s *System2) print() string {
@@ -50,6 +78,67 @@ func (s *System2) print() string {
 	}
 
 	return sb.String()
+}
+
+func (s *System2) step() {
+	instr := s.instructions[s.numSteps]
+	newPos := s.robot.Add(instr)
+	// do nothing if we hit a wall
+	if s.walls[newPos] {
+		s.numSteps++
+		return
+	}
+
+	if b, ok := s.boxes[newPos]; ok {
+		canMove := s.moveBox(b, instr)
+		if canMove {
+			s.robot = newPos
+		}
+	} else {
+		s.robot = newPos
+	}
+
+	// print
+	fmt.Printf("Step %d/%d: %v\n", s.numSteps, len(s.instructions), instr)
+	s.printWithPause(50 * time.Millisecond)
+
+	s.numSteps++
+}
+
+func (s *System2) printWithPause(pause time.Duration) {
+	fmt.Println(s.print())
+	time.Sleep(pause)
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
+
+func (s *System2) moveBox(box *Box, dir vec.Coord) bool {
+	canMove := true
+
+	for _, pos := range []vec.Coord{box.left, box.right} {
+		newPos := pos.Add(dir)
+		if s.walls[newPos] {
+			return false
+		}
+
+		b, ok := s.boxes[newPos]
+		if ok && *b != *box {
+			canMove = canMove && s.moveBox(b, dir)
+		}
+	}
+
+	if canMove {
+		delete(s.boxes, box.left)
+		delete(s.boxes, box.right)
+		newLeft, newRight := box.left.Add(dir), box.right.Add(dir)
+		newBox := Box{newLeft, newRight}
+		s.boxes[newLeft] = &newBox
+		s.boxes[newRight] = &newBox
+		return true
+	}
+
+	return false
 }
 
 func readInputPart2(input string) System2 {

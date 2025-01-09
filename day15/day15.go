@@ -14,12 +14,6 @@ func Part1(input string) any {
 	return sys.getCoordinate()
 }
 
-func Part2(input string) any {
-	sys := readInputPart2(input)
-	fmt.Println(sys.print())
-	return 0
-}
-
 type System struct {
 	robot        vec.Coord
 	obstacles    map[vec.Coord]rune
