@@ -13,7 +13,6 @@ import (
 func Part2(input string) any {
 	sys := readInputPart2(input)
 	sys.run()
-	fmt.Println(sys.print())
 	return sys.getCoordinates()
 }
 
@@ -89,18 +88,20 @@ func (s *System2) step() {
 		return
 	}
 
+	var boxes []*Box
 	if b, ok := s.boxes[newPos]; ok {
-		canMove := s.moveBox(b, instr)
+		canMove := s.canMoveBox(b, instr, &boxes)
 		if canMove {
 			s.robot = newPos
+			s.moveBoxes(boxes, instr)
 		}
 	} else {
 		s.robot = newPos
 	}
 
 	// print
-	fmt.Printf("Step %d/%d: %v\n", s.numSteps, len(s.instructions), instr)
-	s.printWithPause(50 * time.Millisecond)
+	// fmt.Printf("Step %d/%d: %v\n", s.numSteps, len(s.instructions), instr)
+	// s.printWithPause(50 * time.Millisecond)
 
 	s.numSteps++
 }
@@ -113,9 +114,9 @@ func (s *System2) printWithPause(pause time.Duration) {
 	cmd.Run()
 }
 
-func (s *System2) moveBox(box *Box, dir vec.Coord) bool {
+func (s *System2) canMoveBox(box *Box, dir vec.Coord, toMove *[]*Box) bool {
+	*toMove = append(*toMove, box)
 	canMove := true
-
 	for _, pos := range []vec.Coord{box.left, box.right} {
 		newPos := pos.Add(dir)
 		if s.walls[newPos] {
@@ -124,21 +125,24 @@ func (s *System2) moveBox(box *Box, dir vec.Coord) bool {
 
 		b, ok := s.boxes[newPos]
 		if ok && *b != *box {
-			canMove = canMove && s.moveBox(b, dir)
+			canMove = canMove && s.canMoveBox(b, dir, toMove)
 		}
 	}
 
-	if canMove {
+	return canMove
+}
+
+func (s *System2) moveBoxes(boxes []*Box, dir vec.Coord) {
+	for _, box := range boxes {
 		delete(s.boxes, box.left)
 		delete(s.boxes, box.right)
+	}
+	for _, box := range boxes {
 		newLeft, newRight := box.left.Add(dir), box.right.Add(dir)
 		newBox := Box{newLeft, newRight}
 		s.boxes[newLeft] = &newBox
 		s.boxes[newRight] = &newBox
-		return true
 	}
-
-	return false
 }
 
 func readInputPart2(input string) System2 {
