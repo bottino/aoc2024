@@ -61,11 +61,37 @@ func TestShortestPaths(t *testing.T) {
 	paths := g.GetAllShortestPaths("f", prev)
 
 	expected := [][]string{
-		{"a", "b", "f"},
 		{"a", "c", "f"},
+		{"a", "b", "f"},
 	}
 
 	if cmp.Diff(expected, paths) != "" {
 		t.Errorf("Expected %v, got %v", expected, paths)
+	}
+}
+
+func TestRemoveNode(t *testing.T) {
+	g := NewGraph[string]()
+	g.AddUndirectedEdge("a", "b")
+	g.AddUndirectedEdge("a", "c")
+	g.AddUndirectedEdge("b", "d")
+	g.AddUndirectedEdge("c", "d")
+
+	g.RemoveNode("c")
+
+	want := NewSet("a", "b", "d")
+	got := g.Nodes()
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Error(diff)
+	}
+
+	adjWant := map[string]Set[string]{
+		"a": NewSet("b"),
+		"b": NewSet("a", "d"),
+		"d": NewSet("b"),
+	}
+	adjGot := g.adjList
+	if diff := cmp.Diff(adjWant, adjGot); diff != "" {
+		t.Error(diff)
 	}
 }

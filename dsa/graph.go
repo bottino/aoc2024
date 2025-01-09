@@ -41,6 +41,15 @@ func (g *Graph[T]) AddUndirectedEdge(u T, v T) {
 	g.AddEdge(v, u)
 }
 
+func (g *Graph[T]) RemoveNode(u T) {
+	if _, ok := g.adjList[u]; ok {
+		delete(g.adjList, u)
+	}
+	for _, v := range g.adjList {
+		v.Remove(u)
+	}
+}
+
 func (g *Graph[T]) Nodes() Set[T] {
 	if g.nodes != nil {
 		return g.nodes
