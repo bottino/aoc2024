@@ -15,7 +15,8 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
-	fmt.Println("No solution yet for day 15, part 2")
+	sys := readInputPart2(input)
+	fmt.Println(sys.print())
 	return 0
 }
 
