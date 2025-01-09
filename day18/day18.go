@@ -2,6 +2,7 @@ package day18
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -24,22 +25,35 @@ func Part1(input string) any {
 }
 
 func Part2(input string) any {
+	corrBytes := readInput(input)
+	byteBlocking := bisectBlocking(0, len(corrBytes)-1, corrBytes)
+	return fmt.Sprintf("%d,%d", byteBlocking.Y, byteBlocking.X)
+}
+
+// Find the first blocking byte by dissection
+func bisectBlocking(lower int, upper int, corrBytes []vec.Coord) vec.Coord {
+	midPoint := lower + (upper-lower)/2
+
 	N, M := 71, 71
 	g := makeGrid(N, M)
-	corrBytes := readInput(input)
-	var byteBlocking vec.Coord
-	for i := 0; i < len(corrBytes); i++ {
-		fmt.Printf("Byte %d of %d\n", i, len(corrBytes)-1)
+	for i := 0; i <= midPoint; i++ {
 		g.RemoveNode(corrBytes[i])
-		dist, _ := g.Dijkstra(vec.Coord{0, 0}, dsa.UnitDist)
-		endDist := dist[vec.Coord{N - 1, M - 1}]
-		if endDist >= N*M {
-			byteBlocking = corrBytes[i]
-			break
-		}
 	}
 
-	return fmt.Sprintf("%d,%d", byteBlocking.Y, byteBlocking.X)
+	dist, _ := g.Dijkstra(vec.Coord{0, 0}, dsa.UnitDist)
+	endDist := dist[vec.Coord{N - 1, M - 1}]
+
+	if endDist == math.MaxInt {
+		if upper-lower <= 1 {
+			return corrBytes[lower]
+		}
+		return bisectBlocking(lower, midPoint, corrBytes)
+	} else {
+		if upper-lower <= 1 {
+			return corrBytes[upper]
+		}
+		return bisectBlocking(midPoint, upper, corrBytes)
+	}
 }
 
 func readInput(input string) (corrBytes []vec.Coord) {
