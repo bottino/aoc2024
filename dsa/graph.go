@@ -42,6 +42,7 @@ func (g *Graph[T]) AddUndirectedEdge(u T, v T) {
 }
 
 func (g *Graph[T]) RemoveNode(u T) {
+	g.nodes = nil // reset node caching so they get recalculated
 	if _, ok := g.adjList[u]; ok {
 		delete(g.adjList, u)
 	}
