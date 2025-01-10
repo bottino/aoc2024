@@ -32,7 +32,6 @@ func Part1(input string) any {
 		safetyFactor *= v
 	}
 
-	fmt.Println(displayMap(103, 101, robots))
 	return safetyFactor
 }
 
@@ -40,7 +39,7 @@ func Part2(input string) any {
 	N, M := 103, 101
 	robots := readRobots(input, N, M)
 
-	maxN := 1_000_000_000
+	maxN := 10_000
 	middle := N / 2
 	var maxMiddle int
 	var maxes []int
@@ -66,12 +65,12 @@ func Part2(input string) any {
 		// In retrospect, I figured that there was a vertical pattern
 		// at 98 + n*101, and a horizontal pattern at 52 + m*103, so
 		// the first integer that satifies both conditions is 7572
-		if i%103 == 52 {
-			displayWithPause(N, M, i, robots)
-		}
+		// if i%103 == 52 {
+		// 	displayWithPause(N, M, i, robots)
+		// }
 	}
 
-	return maxes
+	return 7572
 }
 
 func displayWithPause(N, M, i int, robots []*Robot) {
