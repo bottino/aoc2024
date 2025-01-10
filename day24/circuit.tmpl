@@ -1,0 +1,15 @@
+digraph g {
+	rankdir="LR"
+	node [shape=box width=.5];
+
+	{{- range .Nodes }}
+	{{.OutWire}} [shape=box, label="{{.Label}}"]
+	{{- end }}
+
+	{{ range .Edges }}
+	{{.From}} -> {{.To}}
+	{{- end }}
+
+	// { rank=same; {{.Inputs}}}
+	// { rank=same; {{.Zs}}}
+}
