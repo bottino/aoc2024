@@ -2,3 +2,5 @@ aoc2024
 **/*.txt
 .exrc
 **/*.html
+**/*.gv
+**/*.pdf
